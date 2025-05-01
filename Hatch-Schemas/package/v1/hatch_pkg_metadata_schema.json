@@ -1,0 +1,98 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Hatch Package Metadata",
+    "description": "Schema for Hatch MCP Server package metadata",
+    "type": "object",
+    "required": ["name", "version", "entry_point"],
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Package identifier",
+            "pattern": "^[a-z0-9-]+$"
+        },
+        "version": {
+            "type": "string",
+            "description": "Semantic version of the package",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "description": {
+            "type": "string",
+            "description": "Human-readable description of the package"
+        },
+        "category": {
+            "type": "string",
+            "description": "Scientific domain or category"
+        },
+        "tags": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Keywords for discovery"
+        },
+        "author": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "email": {"type": "string", "format": "email"}
+            },
+            "required": ["name"]
+        },
+        "contributors": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "email": {"type": "string", "format": "email"}
+                },
+                "required": ["name"]
+            }
+        },
+        "license": {"type": "string"},
+        "repository": {"type": "string", "format": "uri"},
+        "documentation": {"type": "string", "format": "uri"},
+        "dependencies": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Other Hatch packages required"
+        },
+        "python_dependencies": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Python packages required"
+        },
+        "compatibility": {
+            "type": "object",
+            "properties": {
+                "hatchling": {"type": "string"},
+                "python": {"type": "string"}
+            }
+        },
+        "entry_point": {"type": "string"},
+        "tools": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["name", "description"],
+                "properties": {
+                    "name": {"type": "string"},
+                    "description": {"type": "string"}
+                }
+            }
+        },
+        "citations": {
+            "type": "object",
+            "properties": {
+                "origin": {"type": "string"},
+                "mcp": {"type": "string"}
+            }
+        },
+        "installation": {
+            "type": "object",
+            "properties": {
+                "requires_system_packages": {"type": "boolean"},
+                "post_install_script": {"type": ["string", "null"]}
+            }
+        }
+    },
+    "additionalProperties": false
+}
