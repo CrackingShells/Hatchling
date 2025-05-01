@@ -27,6 +27,30 @@ def main():
     # Validate package command
     validate_parser = subparsers.add_parser("validate", help="Validate a package")
     validate_parser.add_argument("package_dir", help="Path to package directory")
+    
+    # Environment management commands
+    env_subparsers = subparsers.add_parser("env", help="Environment management commands").add_subparsers(
+        dest="env_command", help="Environment command to execute"
+    )
+    
+    # Create environment command
+    env_create_parser = env_subparsers.add_parser("create", help="Create a new environment")
+    env_create_parser.add_argument("name", help="Environment name")
+    env_create_parser.add_argument("--description", "-D", default="", help="Environment description")
+    
+    # Remove environment command
+    env_remove_parser = env_subparsers.add_parser("remove", help="Remove an environment")
+    env_remove_parser.add_argument("name", help="Environment name")
+    
+    # List environments command
+    env_subparsers.add_parser("list", help="List all available environments")
+    
+    # Set current environment command
+    env_use_parser = env_subparsers.add_parser("use", help="Set the current environment")
+    env_use_parser.add_argument("name", help="Environment name")
+    
+    # Show current environment command
+    env_subparsers.add_parser("current", help="Show the current environment")
  
     # Parse arguments
     args = parser.parse_args()
@@ -55,6 +79,49 @@ def main():
             return 0
         else:
             print(f"Package validation FAILED: {package_path}")
+            return 1
+    
+    elif args.command == "env":
+        if args.env_command == "create":
+            if manager.create_environment(args.name, args.description):
+                print(f"Environment created: {args.name}")
+                return 0
+            else:
+                print(f"Failed to create environment: {args.name}")
+                return 1
+                
+        elif args.env_command == "remove":
+            if manager.remove_environment(args.name):
+                print(f"Environment removed: {args.name}")
+                return 0
+            else:
+                print(f"Failed to remove environment: {args.name}")
+                return 1
+                
+        elif args.env_command == "list":
+            environments = manager.list_environments()
+            print("Available environments:")
+            for env in environments:
+                current_marker = "* " if env.get("is_current") else "  "
+                description = f" - {env.get('description')}" if env.get("description") else ""
+                print(f"{current_marker}{env.get('name')}{description}")
+            return 0
+            
+        elif args.env_command == "use":
+            if manager.set_current_environment(args.name):
+                print(f"Current environment set to: {args.name}")
+                return 0
+            else:
+                print(f"Failed to set environment: {args.name}")
+                return 1
+                
+        elif args.env_command == "current":
+            current_env = manager.get_current_environment()
+            print(f"Current environment: {current_env}")
+            return 0
+            
+        else:
+            parser.print_help()
             return 1
     else:
         parser.print_help()

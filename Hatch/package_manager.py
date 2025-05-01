@@ -4,12 +4,14 @@ from pathlib import Path
 
 import template_generator as tg
 from package_validator import HatchPackageValidator
+from package_environments import HatchEnvironmentManager
 
 class HatchPackageManager:
     def __init__(self):
         """Initialize the Hatch package manager."""
         self.logger = logging.getLogger("hatch.package_manager")
         self.validator = HatchPackageValidator()
+        self.env_manager = HatchEnvironmentManager()
         
         self.logger.setLevel(logging.INFO)
 
@@ -91,3 +93,72 @@ class HatchPackageManager:
                     self.logger.error(f"Tool validation error: {error}")
         
         return is_valid
+        
+    # Environment management functions
+    
+    def create_environment(self, name: str, description: str = "") -> bool:
+        """
+        Create a new environment.
+        
+        Args:
+            name: Name of the environment
+            description: Description of the environment
+            
+        Returns:
+            bool: True if created successfully, False if environment already exists
+        """
+        return self.env_manager.create_environment(name, description)
+    
+    def remove_environment(self, name: str) -> bool:
+        """
+        Remove an environment.
+        
+        Args:
+            name: Name of the environment to remove
+            
+        Returns:
+            bool: True if removed successfully, False otherwise
+        """
+        return self.env_manager.remove_environment(name)
+    
+    def list_environments(self) -> list:
+        """
+        List all available environments.
+        
+        Returns:
+            List[Dict]: List of environment information dictionaries
+        """
+        return self.env_manager.list_environments()
+    
+    def get_current_environment(self) -> str:
+        """
+        Get the name of the current environment.
+        
+        Returns:
+            str: Name of the current environment
+        """
+        return self.env_manager.get_current_environment()
+    
+    def set_current_environment(self, name: str) -> bool:
+        """
+        Set the current environment.
+        
+        Args:
+            name: Name of the environment to set as current
+            
+        Returns:
+            bool: True if successful, False if environment doesn't exist
+        """
+        return self.env_manager.set_current_environment(name)
+    
+    def environment_exists(self, name: str) -> bool:
+        """
+        Check if an environment exists.
+        
+        Args:
+            name: Name of the environment to check
+            
+        Returns:
+            bool: True if environment exists, False otherwise
+        """
+        return self.env_manager.environment_exists(name)
