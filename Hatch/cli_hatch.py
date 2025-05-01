@@ -24,6 +24,10 @@ def main():
     create_parser.add_argument("--category", "-c", default="", help="Package category")
     create_parser.add_argument("--description", "-D", default="", help="Package description")
     
+    # Validate package command
+    validate_parser = subparsers.add_parser("validate", help="Validate a package")
+    validate_parser.add_argument("package_dir", help="Path to package directory")
+ 
     # Parse arguments
     args = parser.parse_args()
     
@@ -40,6 +44,18 @@ def main():
             description=args.description
         )
         print(f"Package template created at: {package_dir}")
+
+    elif args.command == "validate":
+        package_path = Path(args.package_dir).resolve()
+        
+        is_valid = manager.validate_package(package_path)
+        
+        if is_valid:
+            print(f"Package validation SUCCESSFUL: {package_path}")
+            return 0
+        else:
+            print(f"Package validation FAILED: {package_path}")
+            return 1
     else:
         parser.print_help()
         return 1

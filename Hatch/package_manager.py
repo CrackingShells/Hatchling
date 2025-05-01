@@ -1,12 +1,16 @@
 import logging
-import template_generator as tg
 import json
 from pathlib import Path
+
+import template_generator as tg
+from package_validator import HatchPackageValidator
 
 class HatchPackageManager:
     def __init__(self):
         """Initialize the Hatch package manager."""
         self.logger = logging.getLogger("hatch.package_manager")
+        self.validator = HatchPackageValidator()
+        
         self.logger.setLevel(logging.INFO)
 
     def create_package_template(self,
@@ -52,3 +56,38 @@ class HatchPackageManager:
         
         self.logger.info(f"Created package template at: {package_dir}")
         return package_dir
+        
+    def validate_package(self, package_dir: Path) -> bool:
+        """
+        Validate a Hatch package in the specified directory.
+        
+        Args:
+            package_dir: Path to the package directory
+            
+        Returns:
+            bool: True if package is valid, False otherwise
+        """
+        self.logger.info(f"Validating package: {package_dir}")
+        
+        # Run validation
+        is_valid, results = self.validator.validate_package(package_dir)
+        
+        # Log validation results
+        if is_valid:
+            self.logger.info(f"Package validation successful: {package_dir}")
+        else:
+            self.logger.error(f"Package validation failed: {package_dir}")
+            
+            if not results['metadata_schema']['valid']:
+                for error in results['metadata_schema']['errors']:
+                    self.logger.error(f"Metadata schema error: {error}")
+                    
+            if not results['entry_point']['valid']:
+                for error in results['entry_point']['errors']:
+                    self.logger.error(f"Entry point error: {error}")
+                    
+            if not results['tools']['valid']:
+                for error in results['tools']['errors']:
+                    self.logger.error(f"Tool validation error: {error}")
+        
+        return is_valid
