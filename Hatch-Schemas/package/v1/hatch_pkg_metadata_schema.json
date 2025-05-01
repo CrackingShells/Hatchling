@@ -8,7 +8,7 @@
         "name": {
             "type": "string",
             "description": "Package identifier",
-            "pattern": "^[a-z0-9-]+$"
+            "pattern": "^[a-z0-9_]+$"
         },
         "version": {
             "type": "string",
