@@ -1,0 +1,35 @@
+{
+  "name": "arithmetic_pkg",
+  "version": "1.0.0",
+  "description": "A package for arithmetic operations",
+  "category": "example",
+  "tags": ["101", "math"],
+  "author": {
+    "name": "Jacopin Eliott",
+    "email": "eliott.jacopin@riken.jp"
+  },
+  "license": "MIT",
+  "entry_point": "arithmetic.py",
+  "tools": [
+    {
+      "name": "add",
+      "description": "Add two numbers together."
+    },
+    {
+      "name": "subtract",
+      "description": "Subtract one number from another."
+    },
+    {
+      "name": "multiply",
+      "description": "Multiply two numbers together."
+    },
+    {
+      "name": "divide",
+      "description": "Divide one number by another."
+    }
+  ],
+  "citations": {
+    "origin": "Jacopin Eliott, \"Origin: Example MCP Server for Hatch!\", April 2025",
+    "mcp": "Jacopin Eliott, \"MCP: Example Arithmetic Tools for Hatch!\", April 2025"
+  }
+}
