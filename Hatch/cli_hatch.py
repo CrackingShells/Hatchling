@@ -51,6 +51,23 @@ def main():
     
     # Show current environment command
     env_subparsers.add_parser("current", help="Show the current environment")
+    
+    # Package management commands
+    pkg_subparsers = subparsers.add_parser("package", help="Package management commands").add_subparsers(
+        dest="pkg_command", help="Package command to execute"
+    )
+    
+    # Add package command
+    pkg_add_parser = pkg_subparsers.add_parser("add", help="Add a package to the current environment")
+    pkg_add_parser.add_argument("package_dir", help="Path to package directory (absolute or relative)")
+    
+    # Remove package command
+    pkg_remove_parser = pkg_subparsers.add_parser("remove", help="Remove a package from the current environment")
+    pkg_remove_parser.add_argument("package_name", help="Name of the package to remove")
+    
+    # List packages command
+    pkg_list_parser = pkg_subparsers.add_parser("list", help="List packages in an environment")
+    pkg_list_parser.add_argument("--env", "-e", help="Environment name (default: current environment)")
  
     # Parse arguments
     args = parser.parse_args()
@@ -118,6 +135,40 @@ def main():
         elif args.env_command == "current":
             current_env = manager.get_current_environment()
             print(f"Current environment: {current_env}")
+            return 0
+            
+        else:
+            parser.print_help()
+            return 1
+            
+    elif args.command == "package":
+        if args.pkg_command == "add":
+            if manager.add_package(args.package_dir):
+                print(f"Package added successfully from: {args.package_dir}")
+                return 0
+            else:
+                print(f"Failed to add package from: {args.package_dir}")
+                return 1
+                
+        elif args.pkg_command == "remove":
+            if manager.remove_package(args.package_name):
+                print(f"Package removed: {args.package_name}")
+                return 0
+            else:
+                print(f"Failed to remove package: {args.package_name}")
+                return 1
+                
+        elif args.pkg_command == "list":
+            env_name = args.env if args.env else manager.get_current_environment()
+            packages = manager.list_packages(env_name)
+            
+            if not packages:
+                print(f"No packages found in environment: {env_name}")
+                return 0
+                
+            print(f"Packages in environment '{env_name}':")
+            for pkg in packages:
+                print(f"{pkg['name']} ({pkg['version']})\tHatch compliant: {pkg['hatch_compliant']}\tsource: {pkg['source']['uri']}\tlocation: {pkg['source']['path']}")
             return 0
             
         else:

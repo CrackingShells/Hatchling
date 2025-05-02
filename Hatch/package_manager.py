@@ -5,6 +5,7 @@ from pathlib import Path
 import template_generator as tg
 from package_validator import HatchPackageValidator
 from package_environments import HatchEnvironmentManager
+from package_loader import HatchPackageLoader
 
 class HatchPackageManager:
     def __init__(self):
@@ -12,6 +13,7 @@ class HatchPackageManager:
         self.logger = logging.getLogger("hatch.package_manager")
         self.validator = HatchPackageValidator()
         self.env_manager = HatchEnvironmentManager()
+        self.package_loader = HatchPackageLoader(self, self.env_manager, self.validator)
         
         self.logger.setLevel(logging.INFO)
 
@@ -162,3 +164,53 @@ class HatchPackageManager:
             bool: True if environment exists, False otherwise
         """
         return self.env_manager.environment_exists(name)
+    
+    # Package loading functions
+    
+    def add_package(self, package_dir: str) -> bool:
+        """
+        Add a package to the current environment.
+        
+        Args:
+            package_dir: Path to the package directory (absolute or relative)
+            
+        Returns:
+            bool: True if package was added successfully
+        """
+        try:
+            return self.package_loader.add_package_to_environment(package_dir)
+        except Exception as e:
+            self.logger.error(f"Failed to add package: {e}")
+            return False
+    
+    def remove_package(self, package_name: str) -> bool:
+        """
+        Remove a package from the current environment.
+        
+        Args:
+            package_name: Name of the package to remove
+            
+        Returns:
+            bool: True if package was removed successfully
+        """
+        try:
+            return self.package_loader.remove_package_from_environment(package_name)
+        except Exception as e:
+            self.logger.error(f"Failed to remove package: {e}")
+            return False
+    
+    def list_packages(self, env_name=None) -> list:
+        """
+        List all packages in an environment.
+        
+        Args:
+            env_name: Name of the environment (default: current environment)
+            
+        Returns:
+            List[Dict]: List of package information dictionaries
+        """
+        try:
+            return self.package_loader.list_packages_in_environment(env_name)
+        except Exception as e:
+            self.logger.error(f"Failed to list packages: {e}")
+            return []
