@@ -10,11 +10,11 @@ class PackageValidationError(Exception):
     pass
 
 class HatchPackageValidator:
-    def __init__(self):
+    def __init__(self, version: str = "latest"):
         """Initialize the Hatch package validator."""
         self.logger = logging.getLogger("hatch.package_validator")
         self.logger.setLevel(logging.INFO)
-        self.schema_path = Path(__file__).parent.parent / "Hatch-Schemas" / "package" / "latest" / "hatch_pkg_metadata_schema.json"
+        self.schema_path = Path(__file__).parent.parent / "Hatch-Schemas" / "package" / version / "hatch_pkg_metadata_schema.json"
     
     def validate_metadata_schema(self, metadata: Dict) -> Tuple[bool, List[str]]:
         """
