@@ -1,0 +1,25 @@
+{
+  "name": "base_pkg_1",
+  "version": "1.0.0",
+  "description": "Base package with no dependencies for testing",
+  "category": "testing",
+  "tags": ["test", "base"],
+  "author": {
+    "name": "Test User",
+    "email": "test@example.com"
+  },
+  "license": "MIT",
+  "entry_point": "server.py",
+  "tools": [
+    {
+      "name": "base_function",
+      "description": "Basic function for testing"
+    }
+  ],
+  "dependencies": [],
+  "python_dependencies": [],
+  "citations": {
+    "origin": "Base package 1 for testing with no dependencies",
+    "mcp": "Base package 1 MCP implementation"
+  }
+}

@@ -1,4 +1,3 @@
-import logging
 from mcp_utils.hatch_mcp import HatchMCP
 
 hatch_mcp = HatchMCP("ArithmeticTools",

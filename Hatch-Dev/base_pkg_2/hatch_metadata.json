@@ -1,0 +1,25 @@
+{
+  "name": "base_pkg_2",
+  "version": "1.0.0",
+  "description": "Second base package with no dependencies for testing",
+  "category": "testing",
+  "tags": ["test", "base"],
+  "author": {
+    "name": "Test User",
+    "email": "test@example.com"
+  },
+  "license": "MIT",
+  "entry_point": "server.py",
+  "tools": [
+    {
+      "name": "base_function_alt",
+      "description": "Alternative base function for testing"
+    }
+  ],
+  "dependencies": [],
+  "python_dependencies": [],
+  "citations": {
+    "origin": "Base package 2 for testing with no dependencies",
+    "mcp": "Base package 2 MCP implementation"
+  }
+}

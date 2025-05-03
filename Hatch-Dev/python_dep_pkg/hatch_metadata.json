@@ -1,0 +1,35 @@
+{
+  "name": "python_dep_pkg",
+  "version": "1.0.0",
+  "description": "Package with Python dependencies for testing",
+  "category": "testing",
+  "tags": ["test", "dependency", "python"],
+  "author": {
+    "name": "Test User",
+    "email": "test@example.com"
+  },
+  "license": "MIT",
+  "entry_point": "server.py",
+  "tools": [
+    {
+      "name": "python_dep_function",
+      "description": "Function that depends on an external Python package (requests)"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "base_pkg_1",
+      "version_constraint": ">=1.0.0"
+    }
+  ],
+  "python_dependencies": [
+    {
+      "name": "requests",
+      "version_constraint": ">=2.25.0"
+    }
+  ],
+  "citations": {
+    "origin": "Python dependency package for testing",
+    "mcp": "Python dependency package MCP implementation"
+  }
+}

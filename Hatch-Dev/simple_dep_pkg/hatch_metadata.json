@@ -1,0 +1,30 @@
+{
+  "name": "simple_dep_pkg",
+  "version": "1.0.0",
+  "description": "Package with a simple dependency for testing",
+  "category": "testing",
+  "tags": ["test", "dependency"],
+  "author": {
+    "name": "Test User",
+    "email": "test@example.com"
+  },
+  "license": "MIT",
+  "entry_point": "server.py",
+  "tools": [
+    {
+      "name": "simple_wrapper",
+      "description": "Simple wrapper function that depends on base_pkg_1"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "base_pkg_1",
+      "version_constraint": ">=1.0.0"
+    }
+  ],
+  "python_dependencies": [],
+  "citations": {
+    "origin": "Simple dependency package for testing",
+    "mcp": "Simple dependency package MCP implementation"
+  }
+}

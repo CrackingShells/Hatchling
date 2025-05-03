@@ -1,0 +1,30 @@
+{
+  "name": "missing_dep_pkg",
+  "version": "1.0.0",
+  "description": "Package with a missing dependency for testing error handling",
+  "category": "testing",
+  "tags": ["test", "dependency", "error"],
+  "author": {
+    "name": "Test User",
+    "email": "test@example.com"
+  },
+  "license": "MIT",
+  "entry_point": "server.py",
+  "tools": [
+    {
+      "name": "missing_dep_function",
+      "description": "Function that depends on a non-existent package"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "non_existent_pkg",
+      "version_constraint": ">=1.0.0"
+    }
+  ],
+  "python_dependencies": [],
+  "citations": {
+    "origin": "Missing dependency package for testing",
+    "mcp": "Missing dependency package MCP implementation"
+  }
+}

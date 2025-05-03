@@ -1,0 +1,34 @@
+{
+  "name": "complex_dep_pkg",
+  "version": "1.0.0",
+  "description": "Package with multiple dependencies for testing",
+  "category": "testing",
+  "tags": ["test", "dependency", "complex"],
+  "author": {
+    "name": "Test User",
+    "email": "test@example.com"
+  },
+  "license": "MIT",
+  "entry_point": "server.py",
+  "tools": [
+    {
+      "name": "complex_function",
+      "description": "Complex function that depends on both base packages"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "base_pkg_1",
+      "version_constraint": ">=1.0.0"
+    },
+    {
+      "name": "base_pkg_2",
+      "version_constraint": ">=1.0.0"
+    }
+  ],
+  "python_dependencies": [],
+  "citations": {
+    "origin": "Complex dependency package for testing",
+    "mcp": "Complex dependency package MCP implementation"
+  }
+}
