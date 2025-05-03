@@ -13,7 +13,7 @@
         "version": {
             "type": "string",
             "description": "Semantic version of the package",
-            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            "pattern": "^\\d+(\\.\\d+)*$"
         },
         "description": {
             "type": "string",
@@ -52,19 +52,63 @@
         "documentation": {"type": "string", "format": "uri"},
         "dependencies": {
             "type": "array",
-            "items": {"type": "string"},
-            "description": "Other Hatch packages required"
+            "items": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$",
+                        "description": "Name of the dependent package"
+                    },
+                    "version_constraint": {
+                        "type": "string",
+                        "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                        "description": "Version constraint (e.g., '>=1.0.0', '==1.2.3')"
+                    }
+                }
+            },
+            "description": "Other Hatch packages required. Local dependencies are not allowed."
         },
         "python_dependencies": {
             "type": "array",
-            "items": {"type": "string"},
-            "description": "Python packages required"
+            "items": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9-]+$",
+                        "description": "Name of the Python package"
+                    },
+                    "version_constraint": {
+                        "type": "string",
+                        "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                        "description": "Version constraint (e.g., '>=1.0.0', '==1.2.3')"
+                    },
+                    "package_manager": {
+                        "type": "string",
+                        "enum": ["pip", "conda"],
+                        "default": "pip",
+                        "description": "Package manager to use for installation"
+                    }
+                }
+            },
+            "description": "Python packages required."
         },
         "compatibility": {
             "type": "object",
             "properties": {
-                "hatchling": {"type": "string"},
-                "python": {"type": "string"}
+                "hatchling": {
+                    "type": "string",
+                    "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                    "description": "Version constraint for Hatchling compatibility, e.g., '>=0.1.0'"
+                },
+                "python": {
+                    "type": "string",
+                    "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                    "description": "Version constraint for Python compatibility, e.g., '>=3.6'"
+                }
             }
         },
         "entry_point": {"type": "string"},
@@ -84,13 +128,6 @@
             "properties": {
                 "origin": {"type": "string"},
                 "mcp": {"type": "string"}
-            }
-        },
-        "installation": {
-            "type": "object",
-            "properties": {
-                "requires_system_packages": {"type": "boolean"},
-                "post_install_script": {"type": ["string", "null"]}
             }
         }
     },
