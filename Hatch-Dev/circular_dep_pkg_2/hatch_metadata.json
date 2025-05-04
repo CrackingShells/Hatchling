@@ -16,10 +16,11 @@
       "description": "Function from circular dependency package 2"
     }
   ],
-  "dependencies": [
+  "hatch_dependencies": [
     {
       "name": "circular_dep_pkg_1",
-      "version_constraint": ">=1.0.0"
+      "version_constraint": ">=1.0.0",
+      "type": "remote"
     }
   ],
   "python_dependencies": [],

@@ -16,14 +16,16 @@
       "description": "Complex function that depends on both base packages"
     }
   ],
-  "dependencies": [
+  "hatch_dependencies": [
     {
       "name": "base_pkg_1",
-      "version_constraint": ">=1.0.0"
+      "version_constraint": ">=1.0.0",
+      "type": "remote"
     },
     {
       "name": "base_pkg_2",
-      "version_constraint": ">=1.0.0"
+      "version_constraint": ">=1.0.0",
+      "type": "remote"
     }
   ],
   "python_dependencies": [],

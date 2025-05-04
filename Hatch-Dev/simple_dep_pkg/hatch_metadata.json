@@ -16,10 +16,11 @@
       "description": "Simple wrapper function that depends on base_pkg_1"
     }
   ],
-  "dependencies": [
+  "hatch_dependencies": [
     {
       "name": "base_pkg_1",
-      "version_constraint": ">=1.0.0"
+      "version_constraint": ">=1.0.0",
+      "type": "remote"
     }
   ],
   "python_dependencies": [],

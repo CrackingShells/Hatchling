@@ -16,16 +16,18 @@
       "description": "Function that depends on an external Python package (requests)"
     }
   ],
-  "dependencies": [
+  "hatch_dependencies": [
     {
       "name": "base_pkg_1",
-      "version_constraint": ">=1.0.0"
+      "version_constraint": ">=1.0.0",
+      "type": "remote"
     }
   ],
   "python_dependencies": [
     {
       "name": "requests",
-      "version_constraint": ">=2.25.0"
+      "version_constraint": ">=2.25.0",
+      "package_manager": "pip"
     }
   ],
   "citations": {

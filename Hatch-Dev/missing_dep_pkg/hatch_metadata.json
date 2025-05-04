@@ -16,10 +16,11 @@
       "description": "Function that depends on a non-existent package"
     }
   ],
-  "dependencies": [
+  "hatch_dependencies": [
     {
       "name": "non_existent_pkg",
-      "version_constraint": ">=1.0.0"
+      "version_constraint": ">=1.0.0",
+      "type": "remote"
     }
   ],
   "python_dependencies": [],

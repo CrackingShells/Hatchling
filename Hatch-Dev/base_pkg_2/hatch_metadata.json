@@ -16,7 +16,7 @@
       "description": "Alternative base function for testing"
     }
   ],
-  "dependencies": [],
+  "hatch_dependencies": [],
   "python_dependencies": [],
   "citations": {
     "origin": "Base package 2 for testing with no dependencies",

@@ -50,12 +50,22 @@
         "license": {"type": "string"},
         "repository": {"type": "string", "format": "uri"},
         "documentation": {"type": "string", "format": "uri"},
-        "dependencies": {
+        "hatch_dependencies": {
             "type": "array",
             "items": {
                 "type": "object",
                 "required": ["name"],
                 "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["local", "remote"],
+                        "description": "Type of dependency"
+                    },
+                    "uri": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URI for the dependency. If local, expecting a path to a local directory. If remote, expecting a URL. Local exists for package development but is not allowed in the registry."
+                    },
                     "name": {
                         "type": "string",
                         "pattern": "^[a-z0-9_]+$",
@@ -68,7 +78,7 @@
                     }
                 }
             },
-            "description": "Other Hatch packages required. Local dependencies are not allowed."
+            "description": "Other Hatch packages required."
         },
         "python_dependencies": {
             "type": "array",
