@@ -1,21 +1,55 @@
 import logging
 import json
+import sys
 from pathlib import Path
 
 import template_generator as tg
-from package_validator import HatchPackageValidator
 from package_environments import HatchEnvironmentManager
-from package_loader import HatchPackageLoader
+from registry_retriever import RegistryRetriever
+
+# Add Validator to path
+parent_dir = str(Path(__file__).parent.parent/"Hatch-Validator")
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+from package_validator import HatchPackageValidator
 
 class HatchPackageManager:
-    def __init__(self):
-        """Initialize the Hatch package manager."""
-        self.logger = logging.getLogger("hatch.package_manager")
-        self.validator = HatchPackageValidator()
-        self.env_manager = HatchEnvironmentManager()
-        self.package_loader = HatchPackageLoader(self, self.env_manager, self.validator)
+    def __init__(self, registry_path=None):
+        """
+        Initialize the Hatch package manager.
         
+        Args:
+            registry_path: Path to the registry JSON file. If None, will use the default path.
+        """
+        self.logger = logging.getLogger("hatch.package_manager")
         self.logger.setLevel(logging.INFO)
+        
+        # Set default registry path if not provided
+        if registry_path is None:
+            registry_path = Path(__file__).parent.parent / "Hatch-Registry" / "hatch_packages_registry.json"
+        
+        # Initialize the registry retriever
+        self.registry_retriever = RegistryRetriever(local_registry_path=registry_path)
+        
+        # Initialize components in the right order
+        self.validator = HatchPackageValidator()
+        self.env_manager = HatchEnvironmentManager(registry_path=registry_path)
+        
+        # Access the package loader and dependency resolver through the environment manager
+        # This avoids circular dependencies
+        self.logger.info("Hatch Package Manager initialized")
+
+    # Getter methods to access components through the environment manager
+    @property
+    def package_loader(self):
+        """Get the package loader instance from environment manager."""
+        return self.env_manager.package_loader
+    
+    @property
+    def dependency_resolver(self):
+        """Get the dependency resolver instance from environment manager."""
+        return self.env_manager.dependency_resolver
 
     def create_package_template(self,
                                 target_dir: Path, package_name: str, category: str = "", description: str = ""):
@@ -214,3 +248,143 @@ class HatchPackageManager:
         except Exception as e:
             self.logger.error(f"Failed to list packages: {e}")
             return []
+            
+    # Dependency resolution methods
+    
+    def resolve_package_dependencies(self, package_name: str, version: str) -> dict:
+        """
+        Resolve all dependencies for a specific package version.
+        
+        Args:
+            package_name: Name of the package
+            version: Version of the package
+            
+        Returns:
+            dict: Resolved dependency information
+        """
+        try:
+            return self.dependency_resolver.resolve_dependencies(package_name, version)
+        except Exception as e:
+            self.logger.error(f"Failed to resolve dependencies for {package_name}@{version}: {e}")
+            return {"resolved_packages": [], "python_dependencies": []}
+    
+    def get_full_package_dependencies(self, package_name: str, version: str) -> dict:
+        """
+        Get the full dependency information for a specific package version by
+        reconstructing it from differential storage.
+        
+        Args:
+            package_name: Name of the package
+            version: Version of the package
+            
+        Returns:
+            dict: Full dependency information
+        """
+        try:
+            return self.dependency_resolver.get_full_package_dependencies(package_name, version)
+        except Exception as e:
+            self.logger.error(f"Failed to get dependencies for {package_name}@{version}: {e}")
+            return {"dependencies": [], "python_dependencies": [], "compatibility": {}}
+    
+    def check_circular_dependencies(self, package_name: str, version: str) -> tuple:
+        """
+        Check if a package has circular dependencies.
+        
+        Args:
+            package_name: Name of the package
+            version: Version of the package
+            
+        Returns:
+            tuple: (has_circular_deps, cycle_path)
+        """
+        try:
+            return self.dependency_resolver.check_circular_dependencies(package_name, version)
+        except Exception as e:
+            self.logger.error(f"Failed to check circular dependencies for {package_name}@{version}: {e}")
+            return False, []
+    
+    def update_registry(self) -> bool:
+        """
+        Reload the registry data from the file.
+        
+        Returns:
+            bool: True if successful
+        """
+        try:
+            return self.dependency_resolver.update_registry()
+        except Exception as e:
+            self.logger.error(f"Failed to update registry: {e}")
+            return False
+            
+    def install_with_dependencies(self, package_name: str, version: str = None, resolve_transitive: bool = True) -> bool:
+        """
+        Install a package along with all its dependencies.
+        
+        Args:
+            package_name: Name of the package
+            version: Specific version to install (if None, uses latest)
+            resolve_transitive: Whether to install transitive dependencies
+            
+        Returns:
+            bool: True if installation was successful
+        """
+        self.logger.info(f"Installing package {package_name} with dependencies")
+        
+        try:
+            # Get the latest version if not specified
+            if version is None:
+                for repo in self.dependency_resolver.registry_data.get("repositories", []):
+                    for pkg in repo.get("packages", []):
+                        if pkg["name"] == package_name:
+                            version = pkg.get("latest_version")
+                            break
+                    if version:
+                        break
+            
+            if not version:
+                self.logger.error(f"Package {package_name} not found in registry")
+                return False
+                
+            # Check for circular dependencies
+            has_circular, cycle = self.check_circular_dependencies(package_name, version)
+            if has_circular:
+                self.logger.error(f"Circular dependency detected: {' -> '.join(cycle)}")
+                return False
+                
+            # Resolve dependencies
+            if resolve_transitive:
+                resolved = self.resolve_package_dependencies(package_name, version)
+                packages_to_install = resolved["resolved_packages"]
+                python_deps = resolved["python_dependencies"]
+            else:
+                dep_info = self.get_full_package_dependencies(package_name, version)
+                packages_to_install = [{"name": package_name, "version": version}]
+                python_deps = dep_info["python_dependencies"]
+            
+            # Install Python dependencies first
+            for py_dep in python_deps:
+                name = py_dep["name"]
+                constraint = py_dep.get("version_constraint", "")
+                pkg_manager = py_dep.get("package_manager", "pip")
+                
+                # TODO: Integrate with proper Python package installation
+                self.logger.info(f"Would install Python dependency: {name}{constraint} using {pkg_manager}")
+            
+            # Install Hatch packages in dependency order (reverse the list since it's in dependency-first order)
+            for pkg in reversed(packages_to_install):
+                pkg_name = pkg["name"]
+                pkg_version = pkg["version"]
+                
+                if pkg_name != package_name or pkg_version != version:
+                    self.logger.info(f"Installing dependency: {pkg_name}@{pkg_version}")
+                    # TODO: Implement actual package installation
+                
+            # Install the requested package
+            # TODO: Implement actual package installation logic here
+            self.logger.info(f"Installing main package: {package_name}@{version}")
+            
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Failed to install {package_name} with dependencies: {e}")
+            return False
