@@ -1,0 +1,296 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "CrackingShells Package Registry",
+    "description": "Schema for a centralized registry of all packages across CrackingShells repositories",
+    "type": "object",
+    "required": ["registry_schema_version", "last_updated", "repositories"],
+    "properties": {
+        "registry_schema_version": {
+            "type": "string",
+            "description": "Version of this registry schema",
+            "pattern": "^\\d+(\\.\\d+)*$"
+        },
+        "last_updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the registry was last updated"
+        },
+        "artifact_base_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Base URL for all CI/CD artifacts"
+        },
+        "repositories": {
+            "type": "array",
+            "description": "List of repositories containing packages",
+            "items": {
+                "type": "object",
+                "required": ["name", "url", "packages", "last_indexed"],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Repository name (e.g., 'Hatch-Dev')"
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to the repository"
+                    },
+                    "packages": {
+                        "type": "array",
+                        "description": "List of packages in this repository",
+                        "items": {
+                            "type": "object",
+                            "required": ["name", "versions", "latest_version", "description", "category", "tags"],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Package identifier",
+                                    "pattern": "^[a-z0-9_]+$"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Human-readable description of the package"
+                                },
+                                "category": {
+                                    "type": "string",
+                                    "description": "Scientific domain or category"
+                                },
+                                "tags": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "description": "Keywords for discovery"
+                                },
+                                "versions": {
+                                    "type": "array",
+                                    "description": "Available versions of this package",
+                                    "items": {
+                                        "type": "object",
+                                        "required": ["version", "path", "metadata_path", "artifacts", "added_date", "base_version"],
+                                        "properties": {
+                                            "version": {
+                                                "type": "string",
+                                                "description": "Semantic version of the package",
+                                                "pattern": "^\\d+(\\.\\d+)*$"
+                                            },
+                                            "path": {
+                                                "type": "string",
+                                                "description": "Path to the package"
+                                            },
+                                            "metadata_path": {
+                                                "type": "string",
+                                                "default": "hatch_metadata.json",
+                                                "description": "Path to package metadata file relative to the package path"
+                                            },
+                                            "base_version": {
+                                                "type": "string",
+                                                "description": "Version this differential is based on (null for first version)",
+                                                "pattern": "^\\d+(\\.\\d+)*$"
+                                            },
+                                            "hatch_dependencies_added": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["name"],
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string",
+                                                            "pattern": "^[a-z0-9_]+$",
+                                                            "description": "Name of the dependent package"
+                                                        },
+                                                        "version_constraint": {
+                                                            "type": "string", 
+                                                            "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                                                            "description": "Version constraint (e.g., '>=1.0.0', '==1.2.3')"
+                                                        }
+                                                    }
+                                                },
+                                                "description": "Hatch dependencies added since base_version"
+                                            },
+                                            "hatch_dependencies_removed": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[a-z0-9_]+$",
+                                                    "description": "Name of a dependency that was removed from the previous version"
+                                                },
+                                                "description": "Names of dependencies removed since base_version"
+                                            },
+                                            "hatch_dependencies_modified": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["name"],
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string",
+                                                            "pattern": "^[a-z0-9_]+$",
+                                                            "description": "Name of the dependent package"
+                                                        },
+                                                        "version_constraint": {
+                                                            "type": "string", 
+                                                            "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                                                            "description": "Version constraint (e.g., '>=1.0.0', '==1.2.3')"
+                                                        }
+                                                    }
+                                                },
+                                                "description": "Dependencies with modified version constraints since base_version"
+                                            },
+                                            "python_dependencies_added": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["name"],
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string",
+                                                            "pattern": "^[a-z0-9-]+$",
+                                                            "description": "Name of the Python package"
+                                                        },
+                                                        "version_constraint": {
+                                                            "type": "string",
+                                                            "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                                                            "description": "Version constraint (e.g., '>=1.0.0', '==1.2.3')"
+                                                        },
+                                                        "package_manager": {
+                                                            "type": "string",
+                                                            "enum": ["pip", "conda"],
+                                                            "default": "pip",
+                                                            "description": "Package manager to use for installation"
+                                                        }
+                                                    }
+                                                },
+                                                "description": "Python dependencies added since base_version"
+                                            },
+                                            "python_dependencies_removed": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[a-z0-9-]+$",
+                                                    "description": "Name of a Python dependency that was removed from the previous version"
+                                                },
+                                                "description": "Names of Python dependencies removed since base_version"
+                                            },
+                                            "python_dependencies_modified": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["name"],
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string",
+                                                            "pattern": "^[a-z0-9-]+$",
+                                                            "description": "Name of the Python package"
+                                                        },
+                                                        "version_constraint": {
+                                                            "type": "string",
+                                                            "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                                                            "description": "Version constraint (e.g., '>=1.0.0', '==1.2.3')"
+                                                        },
+                                                        "package_manager": {
+                                                            "type": "string",
+                                                            "enum": ["pip", "conda"],
+                                                            "default": "pip",
+                                                            "description": "Package manager to use for installation"
+                                                        }
+                                                    }
+                                                },
+                                                "description": "Python dependencies with modified version constraints since base_version"
+                                            },
+                                            "compatibility_changes": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "hatchling": {
+                                                        "type": "string",
+                                                        "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                                                        "description": "Changed version constraint for Hatchling compatibility"
+                                                    },
+                                                    "python": {
+                                                        "type": "string",
+                                                        "pattern": "^\\s*(==|>=|<=|!=)\\s*\\d+(\\.\\d+)*$",
+                                                        "description": "Changed version constraint for Python compatibility"
+                                                    }
+                                                },
+                                                "description": "Changed compatibility constraints since base_version"
+                                            },
+                                            "artifacts": {
+                                                "type": "array",
+                                                "description": "CI/CD build artifacts for this version",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["url"],
+                                                    "properties": {
+                                                        "url": {
+                                                            "type": "string",
+                                                            "format": "uri",
+                                                            "description": "URL to download the artifact"
+                                                        },
+                                                        "size": {
+                                                            "type": "integer",
+                                                            "description": "Size in bytes",
+                                                            "minimum": 0
+                                                        },
+                                                        "sha256": {
+                                                            "type": "string",
+                                                            "description": "SHA-256 hash of the artifact"
+                                                        },
+                                                        "build_date": {
+                                                            "type": "string",
+                                                            "format": "date-time",
+                                                            "description": "When this artifact was built"
+                                                        },
+                                                        "build_id": {
+                                                            "type": "string",
+                                                            "description": "CI/CD build identifier"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "added_date": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "description": "When this version was added to the registry"
+                                            }
+                                        }
+                                    }
+                                },
+                                "latest_version": {
+                                    "type": "string",
+                                    "description": "Latest version of the package",
+                                    "pattern": "^\\d+(\\.\\d+)*$" 
+                                }
+                            }
+                        }
+                    },
+                    "last_indexed": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When this repository was last indexed"
+                    }
+                }
+            }
+        },
+        "stats": {
+            "type": "object",
+            "description": "Registry-wide statistics",
+            "properties": {
+                "total_packages": {
+                    "type": "integer",
+                    "description": "Total number of unique packages",
+                    "minimum": 0
+                },
+                "total_versions": {
+                    "type": "integer",
+                    "description": "Total number of package versions",
+                    "minimum": 0
+                },
+                "total_artifacts": {
+                    "type": "integer",
+                    "description": "Total number of build artifacts",
+                    "minimum": 0
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}
