@@ -37,67 +37,15 @@ class LoggingManager:
         # Initialize only once
         self._initialized = True
         
-        # Load log settings from environment variables
-        self._load_log_settings()
-        
-        # Default formatter for root logger
+        # Default formatter for root logger (used for sessions)
         self.default_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         
         # Store all session loggers by name
         self.sessions: Dict[str, SessionDebugLog] = {}
         
-        # Configure root logger for CLI output
-        self.configure_root_logger()
-    
-    def _load_log_settings(self):
-        """Load logging settings from environment variables."""
-        # Get log level from environment (default to INFO)
-        log_level_str = os.environ.get('LOG_LEVEL', 'INFO').upper()
-        log_levels = {
-            'DEBUG': logging.DEBUG,
-            'INFO': logging.INFO,
-            'WARNING': logging.WARNING,
-            'ERROR': logging.ERROR,
-            'CRITICAL': logging.CRITICAL
-        }
-        self.log_level = log_levels.get(log_level_str, logging.INFO)
-        
-        # Get log file path from environment
-        log_dir = Path(os.environ.get('LOG_DIR', Path.home() / '.hatch' / 'logs'))
-        log_dir.mkdir(exist_ok=True, parents=True)
-        self.log_file = log_dir / 'hatchling.log'
-
-    def configure_root_logger(self):
-        """Configure the root logger with CLI handler and file handler if configured."""
-        # Get the root logger
-        root_logger = logging.getLogger()
-        
-        # Remove existing handlers to avoid duplicates if reconfigured
-        for handler in root_logger.handlers[:]:
-            root_logger.removeHandler(handler)
-            
-        # Create console handler
-        console = logging.StreamHandler()
-        console.setFormatter(self.default_formatter)
-        root_logger.addHandler(console)
-        
-        # Add file handler if log file is specified
-        if self.log_file:
-            try:
-                # Use rotating file handler to prevent huge log files
-                file_handler = RotatingFileHandler(
-                    str(self.log_file), 
-                    maxBytes=10*1024*1024,  # 10 MB
-                    backupCount=5
-                )
-                file_handler.setFormatter(self.default_formatter)
-                root_logger.addHandler(file_handler)
-                
-                logging.info(f"Logging to file: {self.log_file}")
-            except Exception as e:
-                logging.error(f"Failed to set up file logging: {str(e)}")
-
-        self.set_log_level(self.log_level)
+        # Default log values (will be overridden by configure_logging)
+        self.log_level = logging.INFO
+        self.log_file = Path.home() / '.hatch' / 'logs' / 'hatchling.log'
     
     def set_log_level(self, level: int) -> None:
         """Set the log level for all loggers and handlers.
@@ -114,15 +62,6 @@ class LoggingManager:
         # Set level for all handlers on root logger
         for handler in root_logger.handlers:
             handler.setLevel(self.log_level)
-        
-        # Then set level for all other loggers
-        for logger_name in logging.root.manager.loggerDict:
-            logger = logging.getLogger(logger_name)
-            logger.setLevel(self.log_level)
-            
-            # Also update handlers
-            for handler in logger.handlers:
-                handler.setLevel(self.log_level)
 
     def get_session(self, name: str, 
                    formatter: Optional[logging.Formatter] = None) -> SessionDebugLog:

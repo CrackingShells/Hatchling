@@ -26,7 +26,7 @@ class HatchMCP():
         )
 
         # Create the underlying FastMCP server
-        self.server = FastMCP(name, log_level=os.environ.get('LOG_LEVEL', 'INFO').upper())
+        self.server = FastMCP(name, log_level="WARNING")
         self.name = name
         self.module_name = "" #the file name of the calling module
         

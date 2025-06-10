@@ -5,7 +5,9 @@ base commands and Hatch-specific commands into a unified interface.
 """
 
 import logging
-from typing import Tuple
+from typing import Tuple, Optional
+
+from prompt_toolkit.styles import Style
 
 from hatchling.core.logging.session_debug_log import SessionDebugLog
 from hatchling.config.settings import ChatSettings
@@ -17,8 +19,7 @@ from hatch import HatchEnvironmentManager
 
 class ChatCommandHandler:
     """Handles processing of command inputs in the chat interface."""    
-    
-    def __init__(self, chat_session, settings: ChatSettings, env_manager: HatchEnvironmentManager, debug_log: SessionDebugLog):
+    def __init__(self, chat_session, settings: ChatSettings, env_manager: HatchEnvironmentManager, debug_log: SessionDebugLog, style: Optional[Style] = None):
         """Initialize the command handler.
         
         Args:
@@ -26,24 +27,30 @@ class ChatCommandHandler:
             settings (ChatSettings): The chat settings to use.
             env_manager (HatchEnvironmentManager): The Hatch environment manager.
             debug_log (SessionDebugLog): Logger for command operations.
+            style (Optional[Style]): Style for formatting command output.
         """
 
-        self.base_commands = BaseChatCommands(chat_session, settings, env_manager, debug_log)
-        self.hatch_commands = HatchCommands(chat_session, settings, env_manager, debug_log)
+        self.base_commands = BaseChatCommands(chat_session, settings, env_manager, debug_log, style)
+        self.hatch_commands = HatchCommands(chat_session, settings, env_manager, debug_log, style)
 
         self._register_commands()
     
     def _register_commands(self) -> None:
         """Register all available chat commands with their handlers."""
-        # Commands that don't need async operations
-        self.sync_commands = {}
-        self.sync_commands.update(self.base_commands.sync_commands)
-        self.sync_commands.update(self.hatch_commands.sync_commands)
+        # Combine all commands from both handlers
+        self.commands = {}
+        self.commands.update(self.base_commands.get_command_metadata())
+        self.commands.update(self.hatch_commands.get_command_metadata())
         
-        # Commands that need async operations
+        # Keep old format for backward compatibility
+        self.sync_commands = {}
         self.async_commands = {}
-        self.async_commands.update(self.base_commands.async_commands)
-        self.async_commands.update(self.hatch_commands.async_commands)
+        
+        for cmd_name, cmd_info in self.commands.items():
+            if cmd_info['is_async']:
+                self.async_commands[cmd_name] = (cmd_info['handler'], cmd_info['description'])
+            else:
+                self.sync_commands[cmd_name] = (cmd_info['handler'], cmd_info['description'])
         
     def print_commands_help(self) -> None:
         """Print help for all available chat commands."""
@@ -92,3 +99,11 @@ class ChatCommandHandler:
             
         # Not a command
         return False, True
+
+    def get_all_command_metadata(self) -> dict:
+        """Get all command metadata from both command handlers.
+        
+        Returns:
+            dict: Combined command metadata from base and hatch commands.
+        """
+        return self.commands

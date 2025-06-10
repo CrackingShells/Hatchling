@@ -79,7 +79,7 @@ class MCPClient:
                 try:
                     # Try a lightweight operation to check connection
                     if self.session:
-                        await self.session.list_tools()
+                        await self.session.send_ping()
                         self.logger.debug("Connection heartbeat: OK")
                 except Exception as e:
                     self.logger.warning(f"Connection heartbeat failed: {e}")

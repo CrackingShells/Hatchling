@@ -1,0 +1,2 @@
+# Enforcing LF line endings for the docker entrypoint script
+./hatchling/docker/entrypoint.sh text eol=lf

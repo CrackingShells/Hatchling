@@ -1,14 +1,19 @@
 import asyncio
-import logging
-import os
-import argparse
 import sys
+from hatchling.core.logging.logging_config import configure_logging
 from hatchling.core.logging.logging_manager import logging_manager
 from hatchling.config.settings import ChatSettings
 from hatchling.ui.cli_chat import CLIChat
 
-# Get logger with custom formatter - this takes advantage of our new implementation
-log = logging_manager.get_session("AppMain", logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))                 
+# Configure global logging first, before any other imports or logger initializations
+# Simply determine if we're in an interactive environment
+is_interactive = sys.stdout.isatty()
+
+# Let the centralized logging system handle all the details
+configure_logging(enable_styling=is_interactive)
+
+# Get logger with custom formatter - now using the centralized styling system
+log = logging_manager.get_session("AppMain")
 
 async def main_async():
     """Main entry point for the application.

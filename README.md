@@ -42,6 +42,8 @@ Hatchling is designed to run with Docker for a consistent experience across plat
 2. **Run Hatchling**:
    ```bash
    # From the docker directory in your project
+   export USER_ID=$(id -u)
+   export GROUP_ID=$(id -g)
    docker-compose run --rm hatchling
    ```
 
