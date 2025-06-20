@@ -13,6 +13,7 @@ services:
       - USER_ID=${USER_ID:-1000}
       - GROUP_ID=${GROUP_ID:-1000}
       - USER_NAME=${USER_NAME:-appuser}
+      - CHATGPT_API_KEY=${CHATGPT_API_KEY}
     network_mode: ${NETWORK_MODE}
     tty: true
     stdin_open: true
@@ -31,7 +32,8 @@ services:
       - USER_ID=${USER_ID:-1000}
       - GROUP_ID=${GROUP_ID:-1000}
       - USER_NAME=${USER_NAME:-appuser}
+      - CHATGPT_API_KEY=${CHATGPT_API_KEY}
     network_mode: ${NETWORK_MODE}
     tty: true
     stdin_open: true
-    
+

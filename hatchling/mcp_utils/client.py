@@ -56,9 +56,9 @@ class MCPClient:
             await self._operation_queue.put(("connect", [server_path], future))
             
             # Wait for the operation to complete
-            return await asyncio.wait_for(future, timeout=30)
+            return await asyncio.wait_for(future, timeout=3000)
         except asyncio.TimeoutError:
-            self.logger.error(f"Connection attempt to {server_path} timed out after 30 seconds")
+            self.logger.error(f"Connection attempt to {server_path} timed out after 3000 seconds")
             return False
         except Exception as e:
             self.logger.error(f"Error in connect operation: {e}")
@@ -376,7 +376,7 @@ class MCPClient:
             # Execute the tool with timeout
             result = await asyncio.wait_for(
                 self.session.call_tool(name=tool_name, arguments=arguments),
-                timeout=30  # 30 second timeout
+                timeout=3000  # 3000 second timeout
             )
             
             # Extract the result value from the response object if needed
@@ -387,7 +387,7 @@ class MCPClient:
                 
         except asyncio.TimeoutError:
             self.logger.error(f"Tool execution timed out: {tool_name}")
-            raise TimeoutError(f"Execution of tool {tool_name} timed out after 30 seconds")
+            raise TimeoutError(f"Execution of tool {tool_name} timed out after 3000 seconds")
             
         except Exception as e:
             self.logger.error(f"Error executing tool {tool_name}: {str(e)}")
