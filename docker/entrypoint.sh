@@ -20,6 +20,9 @@ if [ "$(id -u)" = "0" ]; then
     
     # Fix ownership of mounted volumes
     chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME} 2>/dev/null || true
+
+    # Ensure all of /app is owned by the target user
+    chown -R ${USER_NAME}:${USER_NAME} /app 2>/dev/null || true
     
     # Switch to user and execute command
     exec gosu ${USER_NAME} "${@:-hatchling}"
