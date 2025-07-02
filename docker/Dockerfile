@@ -1,7 +1,24 @@
 FROM python:3.12-slim
 
-# Install git and gosu (for safe user switching)
-RUN apt-get update && apt-get install -y git gosu && rm -rf /var/lib/apt/lists/*
+# Set environment variables for Miniforge
+ENV CONDA_DIR=/opt/conda
+ENV PATH=${CONDA_DIR}/bin:${PATH}
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+
+# Install Miniforge and required dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        wget bzip2 ca-certificates \
+        git gosu passwd && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    wget --quiet https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
+    /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
+    rm /tmp/miniforge.sh && \
+    conda clean --tarballs --index-cache --packages --yes && \
+    find ${CONDA_DIR} -follow -type f -name '*.a' -delete && \
+    find ${CONDA_DIR} -follow -type f -name '*.pyc' -delete && \
+    conda clean --force-pkgs-dirs --all --yes
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
