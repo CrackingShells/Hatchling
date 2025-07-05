@@ -5,14 +5,13 @@ services:
       context: ..
       dockerfile: ./docker/Dockerfile
     volumes:
-      - ${HATCH_HOST_CACHE_DIR}:/home/${USER_NAME:-appuser}/.hatch
-      - ${HATCH_LOCAL_PACKAGE_DIR}:/app/.local
+      - ${HATCH_HOST_CACHE_DIR}:/home/${USER_NAME}/.hatch
+      - ${HATCH_LOCAL_PACKAGE_DIR}:/home/${USER_NAME}/.local
     env_file: .env
     environment:
-      - PYTHONPATH=/app
       - USER_ID=${USER_ID:-1000}
       - GROUP_ID=${GROUP_ID:-1000}
-      - USER_NAME=${USER_NAME:-appuser}
+      - USER_NAME=${USER_NAME:-HatchlingUser}
     network_mode: ${NETWORK_MODE}
     tty: true
     stdin_open: true
@@ -23,14 +22,14 @@ services:
       context: ..
       dockerfile: ./docker/Dockerfile
     volumes:
-      - ${HATCH_HOST_CACHE_DIR}:/home/${USER_NAME:-appuser}/.hatch
-      - ${HATCH_LOCAL_PACKAGE_DIR}:/app/.local
-      - ../:/app # Mount source code for development overriding copied /app in docker file
+      - ${HATCH_HOST_CACHE_DIR}:/home/${USER_NAME}/.hatch
+      - ${HATCH_LOCAL_PACKAGE_DIR}:/home/${USER_NAME}/.local
+      - ../:/opt/hatchling # Mount source code for development overriding copied /app in docker file
     env_file: .env
     environment:
       - USER_ID=${USER_ID:-1000}
       - GROUP_ID=${GROUP_ID:-1000}
-      - USER_NAME=${USER_NAME:-appuser}
+      - USER_NAME=${USER_NAME:-HatchlingUser}
     network_mode: ${NETWORK_MODE}
     tty: true
     stdin_open: true
