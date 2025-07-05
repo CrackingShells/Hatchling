@@ -1,25 +1,42 @@
 FROM python:3.12-slim
 
-# Set environment variables for Miniforge
-ENV CONDA_DIR=/opt/conda
-ENV PATH=${CONDA_DIR}/bin:${PATH}
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 # Use a fixed path for build steps
 ENV HATCHLING_DIR=/opt/hatchling
 
 # Just creating the directory
 RUN mkdir -p ${HATCHLING_DIR}
 
-# Install Miniforge and required dependencies
+
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        wget bzip2 ca-certificates \
-        git gosu passwd && \
+    wget bzip2 ca-certificates \
+    git gosu passwd && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    wget --quiet https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
-    /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
-    rm /tmp/miniforge.sh && \
+    rm -rf /var/lib/apt/lists/* 
+
+# Install Miniforge
+# Set environment variables for Miniforge for the user
+ENV CONDA_DIR=/opt/miniforge3
+ENV PATH=${CONDA_DIR}/bin:${PATH}
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+
+# Copy local Miniforge installer if present in build context (optional)
+COPY docker/miniforge_download/Miniforge3-Linux-x86_64.sh /tmp/miniforge.sh
+
+# Use local installer if present, else download
+RUN if [ -f /tmp/miniforge.sh ]; then \
+      echo "Using local Miniforge installer"; \
+    else \
+      echo "Downloading Miniforge installer"; \
+      wget --quiet https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -O /tmp/miniforge.sh; \
+    fi
+
+# Install
+RUN /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR}
+
+# Clean up
+RUN rm /tmp/miniforge.sh && \
     conda clean --tarballs --index-cache --packages --yes && \
     find ${CONDA_DIR} -follow -type f -name '*.a' -delete && \
     find ${CONDA_DIR} -follow -type f -name '*.pyc' -delete && \

@@ -30,7 +30,7 @@ dependencies = [
     "anyio>=3.7.1",
     "prompt_toolkit>=3.0.41",
 
-    "hatch @ git+https://github.com/CrackingShells/Hatch.git"
+    "hatch @ git+https://github.com/CrackingShells/Hatch.git@fix/decouple-python-env-from-hatch-env"
 ]
 
 [project.scripts]
