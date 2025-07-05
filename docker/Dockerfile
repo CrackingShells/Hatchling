@@ -4,6 +4,11 @@ FROM python:3.12-slim
 ENV CONDA_DIR=/opt/conda
 ENV PATH=${CONDA_DIR}/bin:${PATH}
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+# Use a fixed path for build steps
+ENV HATCHLING_DIR=/opt/hatchling
+
+# Just creating the directory
+RUN mkdir -p ${HATCHLING_DIR}
 
 # Install Miniforge and required dependencies
 RUN apt-get update && \
@@ -26,17 +31,17 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy the current directory contents into the container
+COPY . ${HATCHLING_DIR}
 
 # Set working directory
-WORKDIR /app
+WORKDIR ${HATCHLING_DIR}
 
 # Copy the entrypoint script
 RUN chmod +x ./docker/entrypoint.sh
 
 # Install the package
-RUN pip install -e .
+RUN pip install .
 
 # Use the entrypoint script (runs as root initially to handle permissions)
 ENTRYPOINT ["./docker/entrypoint.sh"]
