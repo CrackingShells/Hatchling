@@ -14,6 +14,7 @@ from prompt_toolkit.formatted_text import FormattedText
 from hatchling.core.logging.session_debug_log import SessionDebugLog
 from hatchling.config.settings import ChatSettings
 from hatchling.core.chat.abstract_commands import AbstractCommands
+from hatchling.mcp_utils.manager import mcp_manager
 
 # Import Hatch components - assumes Hatch is installed or available in the Python path
 from hatch import HatchEnvironmentManager
@@ -77,7 +78,7 @@ class HatchCommands(AbstractCommands):
             'hatch:env:use': {
                 'handler': self._cmd_env_use,
                 'description': "Set the current Hatch environment",
-                'is_async': False,
+                'is_async': True,
                 'args': {
                     'name': {
                         'positional': True,
@@ -349,7 +350,7 @@ class HatchCommands(AbstractCommands):
             
         return True
     
-    def _cmd_env_use(self, args: str) -> bool:
+    async def _cmd_env_use(self, args: str) -> bool:
         """Set the current Hatch environment.
         
         Args:
@@ -380,7 +381,8 @@ class HatchCommands(AbstractCommands):
                 if self.chat_session.tool_executor.tools_enabled:
                     
                     # Disconnection
-                    self.chat_session.tool_executor.disconnect_tools()
+                    await mcp_manager.disconnect_all()
+                    self.chat_session.tool_executor.tools_enabled = False
                     self.logger.info("Disconnected from previous environment's tools.")
 
                     # Get the new environment's entry points for the MCP servers
@@ -388,7 +390,7 @@ class HatchCommands(AbstractCommands):
 
                     if mcp_servers_url:
                         # Reconnect to the new environment's tools
-                        connected = self.chat_session.initialize_mcp(mcp_servers_url)
+                        connected = await self.chat_session.initialize_mcp(mcp_servers_url)
                         if not connected:
                             self.logger.error("Failed to connect to new environment's MCP servers. Tools not enabled.")
                         else:
