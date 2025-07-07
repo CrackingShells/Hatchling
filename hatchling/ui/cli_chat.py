@@ -112,6 +112,8 @@ class CLIChat:
         if mcp_available:
             self.logger.info("MCP server is available! Tool calling is ready to use.")
             self.logger.info("You can enable tools during the chat session by typing 'enable_tools'")
+            # Disconnect after availability check - servers will be reconnected when tools are enabled
+            await mcp_manager.disconnect_all()
         else:
             self.logger.warning("MCP server is not available. Continuing without MCP tools...")
             
@@ -228,6 +230,6 @@ class CLIChat:
             return
         
         finally:
-            # Clean up any remaining MCP server processes
-            # We disconnect by default after checking MCP availability
-            await mcp_manager.disconnect_all()
+            # Clean up any remaining MCP server processes only if tools were enabled
+            if self.chat_session and self.chat_session.tool_executor.tools_enabled:
+                await mcp_manager.disconnect_all()
