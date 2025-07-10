@@ -29,18 +29,19 @@ class MessageHistory:
         if self.logger:
             self.logger.debug(f"MessageHistory - Added user message: {content}")
     
-    def add_assistant_message(self, content: str, tool_calls: List[Dict[str, Any]] = None) -> None:
+    def add_assistant_message(self, content: str, tool_calls: List[Dict[str, Any]] = None, provider: str = None) -> None:
         """Add an assistant message to the history.
         
         Args:
             content (str): The message content.
             tool_calls (List[Dict[str, Any]], optional): Optional list of tool calls.
+            provider (str, optional): LLM provider ("openai" or "ollama").
         """
-        if not tool_calls:
+        if provider == "openai" or not tool_calls:
             self.messages.append({"role": "assistant", "content": content})
         else:
             self.messages.append({
-                "role": "assistant", 
+                "role": "assistant",
                 "content": content,
                 "tool_calls": tool_calls
             })
@@ -48,49 +49,54 @@ class MessageHistory:
         if self.logger:
             self.logger.debug(f"MessageHistory - Added assistant message: {content}")
     
-    def add_tool_result(self, tool_call_id: str, function_name: str, content: str) -> None:
+    def add_tool_result(self, tool_call_id: str, function_name: str, content: str, provider: str = None) -> None:
         """Add a tool result to the history.
         
         Args:
             tool_call_id (str): ID of the tool call this result is for.
             function_name (str): Name of the function that was called.
             content (str): The tool result content.
+            provider (str, optional): LLM provider ("openai" or "ollama").
         """
-        self.messages.append({
-            "role": "tool",
-            "tool_call_id": tool_call_id,
+        role = "function" if provider == "openai" else "tool"
+        msg = {
+            "role": role,
             "name": function_name,
-            "content": content
-        })
-        
+            "content": content,
+            "tool_call_id": tool_call_id,
+            "type": "function"
+        }
+        self.messages.append(msg)
         if self.logger:
             self.logger.debug(f"MessageHistory - Added tool result for {function_name}: {content}")
     
     def update_message_history(self, full_response: str, message_tool_calls: List[Dict[str, Any]], 
-                               tool_results: List[Dict[str, Any]]) -> None:
+                               tool_results: List[Dict[str, Any]], provider: str = None) -> None:
         """Update the message history with the response and tool results.
         
         Args:
             full_response (str): The complete response from the LLM.
             message_tool_calls (List[Dict[str, Any]]): List of tool calls from the response.
             tool_results (List[Dict[str, Any]]): List of tool execution results.
+            provider (str, optional): LLM provider ("openai" or "ollama").
         """
         # Only update if we got a response or tool results
         if not full_response.strip() and not tool_results:
             return
             
         # First add the assistant message
-        if message_tool_calls:
-            self.add_assistant_message(full_response, message_tool_calls)
+        if message_tool_calls and provider != "openai":
+            self.add_assistant_message(full_response, message_tool_calls, provider=provider)
         else:
-            self.add_assistant_message(full_response)
+            self.add_assistant_message(full_response, provider=provider)
         
         # Add all tool results to the message history
         for tool_result in tool_results:
             self.add_tool_result(
-                tool_result["tool_call_id"], 
-                tool_result["name"], 
-                tool_result["content"]
+                tool_result["tool_call_id"],
+                tool_result["name"],
+                tool_result["content"],
+                provider=provider
             )
     
     def get_messages(self) -> List[Dict[str, Any]]:

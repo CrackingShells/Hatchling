@@ -16,9 +16,13 @@ class APIManager:
             settings: The application settings
         """
         self.settings = settings
-        self.logger = logging_manager.get_session(f"APIManager-{settings.ollama_model}",
-                                      formatter=logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        self.model_name = settings.ollama_model
+        provider = settings.get_active_provider()
+        model = settings.get_active_model()
+        self.logger = logging_manager.get_session(
+            f"APIManager-{provider}-{model}",
+            formatter=logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        )
+        self.model_name = model
     
     def prepare_request_payload(self, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Prepare the request payload for the LLM API.
@@ -38,16 +42,21 @@ class APIManager:
         return payload
     
     def add_tools_to_payload(self, payload: Dict[str, Any], tools: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Add tools to the payload if provided.
-        
-        Args:
-            payload: The original payload.
-            tools: List of tools to add
-            
-        Returns:
-            The payload with tools added.
-        """
-        if tools:
+        """Add tools/functions to the payload depending on provider."""
+        if not tools:
+            return payload
+        if self.settings.llm_provider == "openai":
+            # Convert Ollama tool format to OpenAI function format if needed
+            openai_functions = []
+            for tool in tools:
+                if tool.get("type") == "function" and "function" in tool:
+                    openai_functions.append(tool["function"])
+                else:
+                    openai_functions.append(tool)
+            payload["functions"] = openai_functions
+            payload["function_call"] = "auto"
+            self.logger.debug(f"Added {len(openai_functions)} functions to OpenAI payload: {openai_functions}")
+        else:
             payload["tools"] = tools
             payload["tool_choice"] = "auto"
             self.logger.debug(f"Added {len(tools)} tools to payload: {tools}")
@@ -109,13 +118,13 @@ class APIManager:
         
         return content, tool_results
     
-    async def stream_response(self, 
-                              session: aiohttp.ClientSession, 
-                              payload: Dict[str, Any], 
+    async def _stream_ollama_response(self,
+                              session: aiohttp.ClientSession,
+                              payload: Dict[str, Any],
                               history: MessageHistory,
                               tool_executor,
-                              print_output: bool = True, 
-                              prefix: str = None, 
+                              print_output: bool = True,
+                              prefix: str = None,
                               update_history: bool = True) -> Tuple[str, List, List]:
         """Stream a response from the API and handle common processing.
         
@@ -182,6 +191,132 @@ class APIManager:
         
         # Update message history if requested
         if update_history and history:
-            history.update_message_history(full_response, message_tool_calls, tool_results)
+            history.update_message_history(full_response, message_tool_calls, tool_results, provider="ollama")
         
         return full_response, message_tool_calls, tool_results
+
+    async def _stream_openai_response(self,
+                                      session: aiohttp.ClientSession,
+                                      payload: Dict[str, Any],
+                                      history: MessageHistory,
+                                      tool_executor,
+                                      print_output: bool = True,
+                                      prefix: str = None,
+                                      update_history: bool = True) -> Tuple[str, List, List]:
+        """Stream a response from the OpenAI API, supporting function calling."""
+
+        full_response = ""
+        message_tool_calls = []
+        tool_results = []
+        function_call_accumulator = None
+        function_call_name = None
+        function_call_args = ""
+        function_call_id = None
+
+        headers = {"Authorization": f"Bearer {self.settings.openai_api_key}"}
+
+        if prefix and print_output:
+            print(prefix)
+
+        async with session.post(f"{self.settings.openai_api_url}/chat/completions",
+                                json=payload,
+                                headers=headers) as response:
+            if response.status != 200:
+                error_text = await response.text()
+                self.logger.error(f"Error: {response.status}, {error_text}")
+                raise Exception(f"Error: {response.status}, {error_text}")
+
+            async for line in response.content:
+                if not line:
+                    continue
+
+                line_text = line.decode("utf-8").strip()
+                if not line_text:
+                    continue
+
+                for chunk in line_text.split("\n\n"):
+                    if not chunk:
+                        continue
+                    if chunk.startswith("data:"):
+                        chunk = chunk[len("data:"):].strip()
+                    if chunk == "[DONE]":
+                        if print_output:
+                            print()
+                        break
+
+                    try:
+                        data = json.loads(chunk)
+                    except json.JSONDecodeError:
+                        continue
+
+                    choices = data.get("choices", [])
+                    if not choices:
+                        continue
+                    delta = choices[0].get("delta", {})
+
+                    # Handle function call (tool call)
+                    if "function_call" in delta:
+                        fc = delta["function_call"]
+                        if function_call_accumulator is None:
+                            function_call_accumulator = ""
+                            function_call_name = fc.get("name")
+                            function_call_id = choices[0].get("id") or "function_call"
+                        if "arguments" in fc:
+                            function_call_accumulator += fc["arguments"]
+                        continue
+
+                    # Handle normal content
+                    content_piece = delta.get("content")
+                    if content_piece:
+                        if print_output:
+                            print(content_piece, end="", flush=True)
+                        full_response += content_piece
+
+            # If a function call was accumulated, execute it
+            if function_call_accumulator and function_call_name:
+                try:
+                    args = json.loads(function_call_accumulator)
+                except Exception:
+                    args = {}
+                # Execute the tool
+                tool_result = await tool_executor.execute_tool(function_call_id, function_call_name, args)
+                if tool_result:
+                    tool_results.append(tool_result)
+                    message_tool_calls.append({
+                        "id": function_call_id,
+                        "type": "function",  # Required by OpenAI
+                        "function": {"name": function_call_name, "arguments": function_call_accumulator}
+                    })
+                    # Add the tool result as a function message to the history
+                    if history:
+                        history.add_tool_result(function_call_id, function_call_name, tool_result["content"], provider="openai")
+
+        if update_history and history:
+            history.update_message_history(full_response, message_tool_calls, tool_results, provider="openai")
+
+        return full_response, message_tool_calls, tool_results
+
+    async def stream_response(self,
+                              session: aiohttp.ClientSession,
+                              payload: Dict[str, Any],
+                              history: MessageHistory,
+                              tool_executor,
+                              print_output: bool = True,
+                              prefix: str = None,
+                              update_history: bool = True) -> Tuple[str, List, List]:
+        """Stream a response using the configured provider."""
+
+        if self.settings.llm_provider == "openai":
+            return await self._stream_openai_response(
+                session, payload, history, tool_executor,
+                print_output=print_output,
+                prefix=prefix,
+                update_history=update_history,
+            )
+
+        return await self._stream_ollama_response(
+            session, payload, history, tool_executor,
+            print_output=print_output,
+            prefix=prefix,
+            update_history=update_history,
+        )

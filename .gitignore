@@ -49,3 +49,8 @@ Dockerfile.*
 docker-compose.override.yml
 .dockerignore
 .docker/
+
+# Environment files
+.env
+.env.*
+docker/.env

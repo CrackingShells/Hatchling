@@ -18,10 +18,14 @@ class ChatSession:
             settings (ChatSettings): Configuration settings for the chat session.
         """
         self.settings = settings
-        self.model_name = settings.ollama_model
-        # Get session-specific logger from the manager
-        self.logger = logging_manager.get_session(f"ChatSession-{self.model_name}",
-                                  formatter=logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        provider = settings.get_active_provider()
+        model = settings.get_active_model()
+        self.model_name = model
+        # Unified logger naming: ChatSession-provider-model
+        self.logger = logging_manager.get_session(
+            f"ChatSession-{provider}-{model}",
+            formatter=logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        )
         
         # Initialize message components
         self.history = MessageHistory(self.logger)

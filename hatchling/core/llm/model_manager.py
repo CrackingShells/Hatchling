@@ -130,3 +130,28 @@ class ModelManager:
                         return False, f"Ollama service returned status code: {response.status}"
         except Exception as e:
             return False, f"Ollama service is not available: {e}"
+
+    async def check_openai_service(self) -> Tuple[bool, str]:
+        """Check if OpenAI API key is set and the model is available (via a test API call)."""
+        import aiohttp
+        if not self.settings.openai_api_key:
+            return False, "OpenAI API key is missing. Please set CHATGPT_API_KEY in your environment."
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.settings.openai_api_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": self.settings.openai_model,
+                "messages": [{"role": "user", "content": "Hello"}],
+                "max_tokens": 1
+            }
+            async with aiohttp.ClientSession() as session:
+                async with session.post(f"{self.settings.openai_api_url}/chat/completions", json=payload, headers=headers, timeout=10) as response:
+                    if response.status == 200:
+                        return True, f"OpenAI service is available and model '{self.settings.openai_model}' is accessible."
+                    else:
+                        text = await response.text()
+                        return False, f"OpenAI service returned status {response.status}: {text}"
+        except Exception as e:
+            return False, f"OpenAI service is not available or model is invalid: {e}"
