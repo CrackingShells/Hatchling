@@ -68,9 +68,9 @@ class MCPClient:
             await self._operation_queue.put(("connect", [server_path], future))
             
             # Wait for the operation to complete
-            return await asyncio.wait_for(future, timeout=30)
+            return await asyncio.wait_for(future, timeout=30000)
         except asyncio.TimeoutError:
-            self.logger.error(f"Connection attempt to {server_path} timed out after 30 seconds")
+            self.logger.error(f"Connection attempt to {server_path} timed out after 30000 seconds")
             return False
         except Exception as e:
             self.logger.error(f"Error in connect operation: {e}")

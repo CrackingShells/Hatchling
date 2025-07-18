@@ -42,6 +42,9 @@ hatchling = "hatchling.app:main"
 [tool.setuptools.packages.find]
 where = ["."]
 
+[tool.setuptools.package-data]
+hatchling = ["config/languages/*.toml"]
+
 [tool.setuptools.dynamic]
 version = {file = "VERSION"}
 

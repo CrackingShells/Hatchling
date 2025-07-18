@@ -29,6 +29,40 @@ category_name = "llm"
 category_display_name = "Configuration LLM"
 category_description = "Paramètres pour la configuration du modèle de langage"
 
+# Provider setting
+[settings.llm.provider]
+name = "Fournisseur LLM"
+description = "Fournisseur LLM à utiliser ('ollama' ou 'openai')"
+hint = "Choisir entre 'ollama' ou 'openai'"
+
+# Ollama settings
+[settings.llm.ollama_api_url]
+name = "URL API Ollama"
+description = "URL pour le point de terminaison de l'API Ollama"
+hint = "Exemple : http://localhost:11434/api"
+
+[settings.llm.ollama_model]
+name = "Modèle Ollama"
+description = "Modèle Ollama à utiliser pour les interactions de chat"
+hint = "Exemple : llama3.2"
+
+# OpenAI settings
+[settings.llm.openai_api_url]
+name = "URL API OpenAI"
+description = "URL pour le point de terminaison de l'API OpenAI"
+hint = "Exemple : https://api.openai.com/v1"
+
+[settings.llm.openai_model]
+name = "Modèle OpenAI"
+description = "Modèle OpenAI à utiliser pour les interactions de chat"
+hint = "Exemple : gpt-4o-mini"
+
+[settings.llm.openai_api_key]
+name = "Clé API OpenAI"
+description = "Clé API pour les services OpenAI"
+hint = "Votre clé API OpenAI"
+
+# Legacy settings (deprecated but may still be referenced)
 [settings.llm.api_url]
 name = "URL de l'API"
 description = "URL pour le point de terminaison de l'API Ollama"

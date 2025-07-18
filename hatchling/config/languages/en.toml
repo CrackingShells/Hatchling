@@ -29,6 +29,40 @@ category_name = "llm"
 category_display_name = "LLM Configuration"
 category_description = "Settings for Large Language Model configuration"
 
+# Provider setting
+[settings.llm.provider]
+name = "LLM Provider"
+description = "LLM provider to use ('ollama' or 'openai')"
+hint = "Choose between 'ollama' or 'openai'"
+
+# Ollama settings
+[settings.llm.ollama_api_url]
+name = "Ollama API URL"
+description = "URL for the Ollama API endpoint"
+hint = "Example: http://localhost:11434/api"
+
+[settings.llm.ollama_model]
+name = "Ollama Model"
+description = "Ollama model to use for chat interactions"
+hint = "Example: llama3.2"
+
+# OpenAI settings
+[settings.llm.openai_api_url]
+name = "OpenAI API URL"
+description = "URL for the OpenAI API endpoint"
+hint = "Example: https://api.openai.com/v1"
+
+[settings.llm.openai_model]
+name = "OpenAI Model"
+description = "OpenAI model to use for chat interactions"
+hint = "Example: gpt-4o-mini"
+
+[settings.llm.openai_api_key]
+name = "OpenAI API Key"
+description = "API key for OpenAI services"
+hint = "Your OpenAI API key"
+
+# Legacy settings (deprecated but may still be referenced)
 [settings.llm.api_url]
 name = "API URL"
 description = "URL for the Ollama API endpoint"

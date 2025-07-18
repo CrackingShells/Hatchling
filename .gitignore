@@ -43,6 +43,10 @@ coverage.xml
 *.ipynb_checkpoints
 *.pyc
 
+# env file sample
+.env.*
+docker/.env
+
 # Docker
 *.dockerfile
 Dockerfile.*

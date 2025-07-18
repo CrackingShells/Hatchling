@@ -91,11 +91,34 @@ class CLIChat:
         Returns:
             bool: True if initialization was successful.
         """
-        # Check if Ollama service is available
-        available, message = await self.model_manager.check_ollama_service()
-        if not available:
-            self.logger.error(message)
-            self.logger.error(f"Please ensure the Ollama service is running at {self.settings_registry.settings.llm.api_url} before running this script.")
+        provider = self.settings_registry.settings.llm.get_active_provider()
+        model = self.settings_registry.settings.llm.get_active_model()
+        print_pt(FormattedText([
+            ('yellow bold', f"\nUsing LLM provider: {provider} (model: {model})\n")
+        ]))
+        if provider == "ollama":
+            available, message = await self.model_manager.check_ollama_service()
+            if not available:
+                self.logger.error(message)
+                self.logger.error(
+                    f"Please ensure the Ollama service is running at {self.settings_registry.settings.llm.ollama_api_url} before running this script."
+                )
+                print_pt(FormattedText([('red bold', message)]))
+                return False
+            self.logger.info(message)
+            print_pt(FormattedText([('green', message)]))
+        elif provider == "openai":
+            available, message = await self.model_manager.check_openai_service()
+            if not available:
+                self.logger.error(message)
+                print_pt(FormattedText([('red bold', message)]))
+                return False
+            self.logger.info(message)
+            print_pt(FormattedText([('green', message)]))
+        else:
+            msg = f"Unknown LLM provider: {provider}"
+            self.logger.error(msg)
+            print_pt(FormattedText([('red bold', msg)]))
             return False
         
         self.logger.info(message)
@@ -135,15 +158,18 @@ class CLIChat:
         Returns:
             bool: True if model is available (either already or after pulling).
         """
+        if self.settings_registry.settings.llm.get_active_provider() != "ollama":
+            return True
+
         try:
             # Check if model is available
-            is_model_available = await self.model_manager.check_availability(session, self.settings_registry.settings.llm.model)
-            
+            is_model_available = await self.model_manager.check_availability(session, self.settings_registry.settings.llm.ollama_model)
+
             if is_model_available:
-                self.logger.info(f"Model {self.settings_registry.settings.llm.model} is already pulled.")
+                self.logger.info(f"Model {self.settings_registry.settings.llm.ollama_model} is already pulled.")
                 return True
             else:
-                await self.model_manager.pull_model(session, self.settings_registry.settings.llm.model)
+                await self.model_manager.pull_model(session, self.settings_registry.settings.llm.ollama_model)
                 return True
         except Exception as e:
             self.logger.error(f"Error checking/pulling model: {e}")
@@ -155,7 +181,7 @@ class CLIChat:
             self.logger.error("Chat session not initialized. Call initialize() first.")
             return
 
-        self.logger.info(f"Starting interactive chat with {self.settings_registry.settings.llm.model}")
+        self.logger.info(f"Starting interactive chat with {self.settings_registry.settings.llm.get_active_model()}")
         print_pt(FormattedText([('cyan bold', '\n=== Hatchling Chat Interface ===\n')]))
         self.cmd_handler.print_commands_help()
         

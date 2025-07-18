@@ -18,9 +18,14 @@ class ChatSession:
             settings (AppSettings): Configuration settings for the chat session.
         """
         self.settings = settings
-        # Get session-specific logger from the manager
-        self.logger = logging_manager.get_session(f"ChatSession-{self.settings.llm.model}",
-                                  formatter=logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        provider = settings.llm.get_active_provider()
+        model = settings.llm.get_active_model()
+        self.model_name = model
+        # Unified logger naming: ChatSession-provider-model
+        self.logger = logging_manager.get_session(
+            f"ChatSession-{provider}-{model}",
+            formatter=logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        )
         
         # Initialize message components
         self.history = MessageHistory(self.logger)
@@ -150,7 +155,7 @@ class ChatSession:
             
             # Create a new payload without tools (we don't want more tool calls in the formatted response)
             payload = {
-                "model": self.settings.llm.model,
+                "model": self.model_name,
                 "messages": clean_history.get_messages(),
                 "stream": True
             }

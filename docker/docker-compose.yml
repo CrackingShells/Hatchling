@@ -14,6 +14,12 @@ services:
       - USER_NAME=${USER_NAME:-HatchlingUser}
       - HATCHLING_DEFAULT_LANGUAGE=${HATCHLING_DEFAULT_LANGUAGE:-en}
       - HATCHLING_SOURCE_DIR=${HATCHLING_SOURCE_DIR:-/opt/Hatchling}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      - CHATGPT_API_KEY=${CHATGPT_API_KEY}
+      - CHATGPT_MODEL=${CHATGPT_MODEL:-gpt-4o-mini}
+      - OPENAI_API_URL=${OPENAI_API_URL:-https://api.openai.com/v1}
+      - OLLAMA_HOST_API=${OLLAMA_HOST_API:-http://localhost:11434/api}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
     network_mode: ${NETWORK_MODE}
     tty: true
     stdin_open: true
@@ -34,6 +40,13 @@ services:
       - USER_NAME=${USER_NAME:-HatchlingUser}
       - HATCHLING_DEFAULT_LANGUAGE=${HATCHLING_DEFAULT_LANGUAGE:-en}
       - HATCHLING_SOURCE_DIR=${HATCHLING_SOURCE_DIR:-/opt/Hatchling}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      - CHATGPT_API_KEY=${CHATGPT_API_KEY}
+      - CHATGPT_MODEL=${CHATGPT_MODEL:-gpt-4o-mini}
+      - OPENAI_API_URL=${OPENAI_API_URL:-https://api.openai.com/v1}
+      - OLLAMA_HOST_API=${OLLAMA_HOST_API:-http://localhost:11434/api}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
+      - DEVELOPMENT_MODE=true
     network_mode: ${NETWORK_MODE}
     tty: true
     stdin_open: true

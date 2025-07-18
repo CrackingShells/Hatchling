@@ -288,7 +288,7 @@ class BaseChatCommands(AbstractCommands):
         try:
             iterations = int(args.strip())
             if iterations > 0:
-                self.settings.max_tool_call_iteration = iterations
+                self.settings.tool_calling.max_iterations = iterations
                 self.logger.info(f"Maximum tool call iterations set to {iterations}")
             else:
                 self.logger.error("Maximum iterations must be greater than 0")
@@ -308,7 +308,7 @@ class BaseChatCommands(AbstractCommands):
         try:
             seconds = float(args.strip())
             if seconds > 0:
-                self.settings.max_working_time = seconds
+                self.settings.tool_calling.max_working_time = seconds
                 self.logger.info(f"Maximum working time set to {seconds} seconds")
             else:
                 self.logger.error("Maximum working time must be greater than 0")
