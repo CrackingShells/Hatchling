@@ -1,0 +1,113 @@
+site_name: Hatchling Documentation
+site_url: https://crackingshells.github.io/Hatchling/
+repo_url: https://github.com/CrackingShells/Hatchling
+repo_name: CrackingShells/Hatchling
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - toc.follow
+    - toc.integrate
+  palette:
+    - scheme: default
+      primary: teal
+      accent: orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - For Users:
+    - Tutorials:
+      - Installation Guide: articles/users/tutorials/Installation/index.md
+      - Docker Setup: articles/users/tutorials/Installation/docker-ollama-setup.md
+      - Running Hatchling: articles/users/tutorials/Installation/running_hatchling.md
+    - User Guides:
+      - Chat Commands: articles/users/chat_commands.md
+      - Settings: articles/users/settings.md
+      - Settings Reference: articles/users/settings_reference.md
+      - Language Support: articles/users/language_support.md
+  - For Developers:
+    - Development Documentation:
+      - Versioning: articles/devs/versioning.md
+      - Settings Architecture: articles/devs/settings_architecture.md
+      - Event System Architecture: articles/devs/event_system_architecture.md
+      - i18n Support: articles/devs/i18n_support.md
+    - Contributing:
+      - Contribution Guidelines: articles/devs/how_to_contribute.md
+      - Contribution Guides: articles/devs/contribution_guides/index.md
+      - Contributing Languages: articles/devs/contribution_guides/contributing_languages.md
+      - Implementing LLM Providers: articles/devs/contribution_guides/implementing_llm_providers.md
+  - Appendices:
+    - Overview: articles/appendices/index.md
+    - Glossary: articles/appendices/glossary.md
+    - Open a Terminal: articles/appendices/open_a_terminal.md
+  - Resources:
+    - Diagrams: resources/diagrams/export/index.md
+    - Diagram Sources: resources/diagrams/puml/index.md
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: CrackingShells
+      repo: Hatchling
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/CrackingShells/Hatchling

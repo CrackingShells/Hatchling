@@ -32,7 +32,7 @@ This section assumes you have followed the [Docker & Ollama setup](./docker-olla
   docker run -d --device /dev/kfd --device /dev/dri -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama:rocm
   ```
 
-### Checking that GPU support is enabled  as expected
+### Checking that GPU support is enabled as expected
 
 - Go to the `Containers` tab in Docker Desktop (arrow 1) and select your Ollama container
 ![docker_desktop_find_container](../../../../resources/images/docker-setup/docker_find_container.png)

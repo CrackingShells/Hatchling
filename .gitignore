@@ -62,3 +62,6 @@ _site
 .jekyll-metadata
 vendor
 Gemfile.lock
+
+# MkDocs
+site/

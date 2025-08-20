@@ -4,7 +4,7 @@
 
 ### Tutorials
 
-- [Installation Guide](./articles/users/tutorials/Installation/) - Step-by-step setup instructions
+- [Installation Guide](./articles/users/tutorials/Installation/index.md) - Step-by-step setup instructions
   - [Docker Setup](./articles/users/tutorials/Installation/docker-ollama-setup.md) - Docker environment setup
   - [Running Hatchling](./articles/users/tutorials/Installation/running_hatchling.md) - Starting the application
 
@@ -46,7 +46,7 @@ Documentation for maintainers and contributors working on Hatchling's codebase.
 
 ### Diagrams
 
-- [Architecture Diagrams](./resources/diagrams/export/) - System architecture documentation
+- [Architecture Diagrams](./resources/diagrams/export/index.md) - System architecture documentation
   - [LLM Provider Architecture](./resources/diagrams/export/llm_provider_architecture.svg) - Provider system class diagram
   - [Provider Interaction Sequence](./resources/diagrams/export/provider_interaction_sequence.svg) - Provider workflow sequence diagram
   - [Translation Flow](./resources/diagrams/export/i18n_translation_flow.svg) - How the translation files are leveraged to display runtime documentation in different languages
@@ -55,4 +55,4 @@ Documentation for maintainers and contributors working on Hatchling's codebase.
 
 ### Diagram Sources
 
-- [PlantUML Sources](./resources/diagrams/puml/) - Editable source files for architecture and workflow diagrams
+- [PlantUML Sources](./resources/diagrams/puml/index.md) - Editable source files for architecture and workflow diagrams

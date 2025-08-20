@@ -8,4 +8,4 @@
 - **[Settings Architecture](./settings_components_architecture.svg)** - Component relationships in the settings system
 - **[Tool Chaining Sequence](./tool_chaining_events_sequence_v2.svg)** - Event sequence for tool chaining functionality
 
-These diagrams are generated from [PlantUML source files](../puml/) and provide visual documentation for developers and contributors.
+These diagrams are generated from [PlantUML source files](../puml/index.md) and provide visual documentation for developers and contributors.

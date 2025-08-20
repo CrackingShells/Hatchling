@@ -2,7 +2,7 @@
 
 ## Available Source Files
 
-These PlantUML files generate the [exported diagrams](../export/):
+These PlantUML files generate the [exported diagrams](../export/index.md):
 
 - **LLM Provider Architecture** - `llm_provider_architecture.puml` - Class diagram source
 - **Provider Interaction Sequence** - `provider_interaction_sequence.puml` - Sequence diagram source  

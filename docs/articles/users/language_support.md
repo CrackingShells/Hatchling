@@ -96,7 +96,7 @@ For technical details about the translation system, see the [i18n Support docume
 
 ## Contributing New Languages
 
-Interested in adding support for your language? See the [Contributing Languages guide](../devs/contributing_languages.md) for detailed instructions on creating new translations.
+Interested in adding support for your language? See the [Contributing Languages guide](../devs/contribution_guides/contributing_languages.md) for detailed instructions on creating new translations.
 
 > [!Warning]
 > Multi-language support is currently in alpha. The contribution process requires manual testing as automated translation validation is not yet available.
