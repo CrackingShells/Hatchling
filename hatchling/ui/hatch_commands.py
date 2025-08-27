@@ -782,18 +782,30 @@ class HatchCommands(AbstractCommands):
         try:
             package_path = Path(parsed_args['package_dir']).resolve()
             
-            # Use the validator from environment manager
-            is_valid, validation_results = mcp_manager.hatch_env_manager.package_validator.validate_package(package_path)
+            # Create validator with registry data from environment manager
+            from hatch_validator import HatchPackageValidator
+            validator = HatchPackageValidator(
+                version="latest",
+                allow_local_dependencies=True,
+                registry_data=mcp_manager.hatch_env_manager.registry_data
+            )
+            
+            # Validate the package
+            is_valid, validation_results = validator.validate_package(package_path)
             
             if is_valid:
                 self.logger.info(f"Package validation SUCCESSFUL: {package_path}")
             else:
                 self.logger.warning(f"Package validation FAILED: {package_path}")
+                
+                # Print detailed validation results if available
                 if validation_results and isinstance(validation_results, dict):
-                    for key, issues in validation_results.items():
-                        self.logger.warning(f"\n{key} issues:")
-                        for issue in issues:
-                            self.logger.warning(f"- {issue}")
+                    for category, result in validation_results.items():
+                        if category != 'valid' and category != 'metadata' and isinstance(result, dict):
+                            if not result.get('valid', True) and result.get('errors'):
+                                self.logger.warning(f"\n{category.replace('_', ' ').title()} errors:")
+                                for error in result['errors']:
+                                    self.logger.warning(f"  - {error}")
 
         except Exception as e:
             self.logger.error(f"Error validating package: {e}")

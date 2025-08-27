@@ -1,3 +1,10 @@
+## [0.4.4-dev.1](https://github.com/CrackingShells/Hatchling/compare/v0.4.3...v0.4.4-dev.1) (2025-08-27)
+
+
+### Bug Fixes
+
+* hatch package validation ([f7e8abf](https://github.com/CrackingShells/Hatchling/commit/f7e8abf83abf97870109d1e04a7f379c53b95f97))
+
 ## [0.4.3](https://github.com/CrackingShells/Hatchling/compare/v0.4.2...v0.4.3) (2025-08-26)
 
 
