@@ -1,0 +1,39 @@
+site_name: Hatchling Docs
+site_description: Documentation for the Hatchling project
+site_url: https://crackingshells.github.io/Hatchling/
+
+repo_name: CrackingShells/Hatchling
+repo_url: https://github.com/CrackingShells/Hatchling
+
+docs_dir: docs
+
+theme:
+  name: mkdocs
+
+nav:
+  - Home: index.md
+  - Users:
+      - Chat Commands: articles/users/chat_commands.md
+      - Settings: articles/users/settings.md
+      - Settings Reference: articles/users/settings_reference.md
+      - Language Support: articles/users/language_support.md
+  - Developers:
+      - Versioning: articles/devs/versioning.md
+      - Settings Architecture: articles/devs/settings_architecture.md
+      - Event System Architecture: articles/devs/event_system_architecture.md
+      - i18n Support: articles/devs/i18n_support.md
+      - Contributing: articles/devs/CONTRIBUTING.md
+  - Appendices:
+      - Glossary: articles/appendices/glossary.md
+  - Changelog: CHANGELOG.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+  - footnotes
+  - codehilite
