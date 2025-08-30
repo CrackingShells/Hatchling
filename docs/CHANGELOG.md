@@ -1,3 +1,10 @@
+## [0.4.5](https://github.com/CrackingShells/Hatchling/compare/v0.4.4...v0.4.5) (2025-08-30)
+
+
+### Bug Fixes
+
+* **deps:** fixed Hatch for entrypoint retrieval ([0512368](https://github.com/CrackingShells/Hatchling/commit/05123687afa1653fabee4b9e623532aca70c9246))
+
 ## [0.4.4](https://github.com/CrackingShells/Hatchling/compare/v0.4.3...v0.4.4) (2025-08-27)
 
 
