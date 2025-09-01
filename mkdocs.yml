@@ -23,12 +23,25 @@ nav:
       - Event System Architecture: articles/devs/event_system_architecture.md
       - i18n Support: articles/devs/i18n_support.md
       - Contributing: articles/devs/CONTRIBUTING.md
+      - API Reference: api.md
   - Appendices:
       - Glossary: articles/appendices/glossary.md
   - Changelog: CHANGELOG.md
 
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            show_root_toc_entry: false
+            heading_level: 2
+            show_category_heading: true
+            show_labels: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
 
 markdown_extensions:
   - admonition
