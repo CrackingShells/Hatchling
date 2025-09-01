@@ -8,11 +8,11 @@ Hatchling is a Python application that provides a chat interface with LLM integr
 
 ## Package Structure
 
-- [Core Modules](api/core.md) - Core functionality including chat, LLM, and logging
-- [Configuration](api/config.md) - Settings and configuration management
-- [UI Components](api/ui.md) - User interface and command handling
-- [MCP Utils](api/mcp_utils.md) - Model Context Protocol utilities
-- [Main Application](api/app.md) - Main application entry point
+- [Core Modules](core.md) - Core functionality including chat, LLM, and logging
+- [Configuration](config.md) - Settings and configuration management
+- [UI Components](ui.md) - User interface and command handling
+- [MCP Utils](mcp_utils.md) - Model Context Protocol utilities
+- [Main Application](app.md) - Main application entry point
 
 ## Quick Start
 
