@@ -23,7 +23,3 @@
 ## Internationalization
 
 ::: hatchling.config.i18n
-
-## Languages
-
-::: hatchling.config.languages
