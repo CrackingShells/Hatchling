@@ -24,18 +24,20 @@ from hatchling.ui.settings_commands import SettingsCommands
 
 class ChatCommandHandler:
     """Handles processing of command inputs in the chat interface."""    
-    def __init__(self, chat_session, settings_registry: SettingsRegistry, style: Optional[Style] = None):
+    def __init__(self, chat_session, settings_registry: SettingsRegistry, style: Optional[Style] = None, cli_chat=None):
         """Initialize the command handler.
         
         Args:
             chat_session: The chat session this handler is associated with.
             settings_registry (SettingsRegistry): The settings registry containing configuration.
             style (Optional[Style]): Style for formatting command output.
+            cli_chat: The CLIChat instance for accessing its methods.
         """
 
 
         self.settings_registry = settings_registry
-        self.base_commands = BaseChatCommands(chat_session, settings_registry, style)
+        self.cli_chat = cli_chat
+        self.base_commands = BaseChatCommands(chat_session, settings_registry, style, cli_chat)
         self.hatch_commands = HatchCommands(chat_session, settings_registry, style)
         self.settings_commands = SettingsCommands(chat_session, settings_registry, style)
         self.mcp_commands = MCPCommands(chat_session, settings_registry, style)

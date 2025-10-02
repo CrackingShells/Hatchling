@@ -18,14 +18,16 @@ from hatchling.ui.cli_event_subscriber import CLIEventSubscriber
 class CLIChat:
     """Command-line interface for chat functionality."""
 
-    def __init__(self, settings_registry: SettingsRegistry):
+    def __init__(self, settings_registry: SettingsRegistry, input_file_path: str = None):
         """Initialize the CLI chat interface.
         
         Args:
             settings (SettingsRegistry): The settings management instance containing configuration.
+            input_file_path (str, optional): Path to a file containing commands to execute. Defaults to None.
         """
         # Store settings first
         self.settings_registry = settings_registry
+        self.input_file_path = input_file_path
         
         # Get a logger - styling is already configured at the application level
         self.logger = logging_manager.get_session("CLIChat")
@@ -101,7 +103,7 @@ class CLIChat:
             mcp_manager.publisher.subscribe(self.cli_event_subscriber)
 
             # Initialize command handler
-            self.cmd_handler = ChatCommandHandler(self.chat_session, self.settings_registry, self.command_style)
+            self.cmd_handler = ChatCommandHandler(self.chat_session, self.settings_registry, self.command_style, self)
             
             # Setup key bindings
             self.key_bindings = self._create_key_bindings()
@@ -184,8 +186,12 @@ class CLIChat:
         return FormattedText([('class:right-prompt', right_prompt_text)])
     
     async def start_interactive_session(self) -> None:
-        """Run an interactive chat session with message history."""
-        
+        """Run an interactive chat session with message history or process commands from a file."""
+
+        if self.input_file_path:
+            await self._process_commands_from_file(self.input_file_path)
+            # After processing the file, continue to interactive mode
+
         #async with aiohttp.ClientSession() as session:
         while True: 
             try:
@@ -196,7 +202,7 @@ class CLIChat:
                 ]
                 # Use patch_stdout to prevent output interference
                 with patch_stdout():
-                    user_message = await self.prompt_session.prompt_async(
+                    user_input = await self.prompt_session.prompt_async(
                         FormattedText(prompt_message),
                         completer=self.cmd_handler.command_completer,
                         lexer=self.cmd_handler.command_lexer,
@@ -207,14 +213,14 @@ class CLIChat:
                     )
                 
                 # Process as command if applicable
-                is_command, should_continue = await self.cmd_handler.process_command(user_message)
+                is_command, should_continue = await self.cmd_handler.process_command(user_input)
                 if is_command:
                     if not should_continue:
                         break
                     continue
                 
                 # Handle normal message
-                if not user_message.strip():
+                if not user_input.strip():
                     # Skip empty input
                     continue
 
@@ -226,7 +232,7 @@ class CLIChat:
                 
                 try:
                     # Send the message (this will trigger streaming events)
-                    await self.chat_session.send_message(user_message)
+                    await self.chat_session.send_message(user_input)
                     
                     # Wait for all processing to complete (tool chains, etc.)
                     await self._monitor_right_to_prompt()
@@ -244,6 +250,36 @@ class CLIChat:
             except Exception as e:
                 self.logger.error(f"Error: {e}")
                 print_pt(FormattedText([('red', f'\nError: {e}')]))
+
+    async def _process_commands_from_file(self, file_path: str) -> None:
+        """Processes commands from a given file path."""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    user_input = line.strip()
+                    if not user_input:
+                        continue
+
+                    print_pt(FormattedText([('green', f'You: {user_input}')]))
+
+                    is_command, should_continue = await self.cmd_handler.process_command(user_input)
+                    if is_command:
+                        if not should_continue:
+                            break
+                        continue
+
+                    self.cli_event_subscriber.set_processing_user_message(True)
+                    try:
+                        await self.chat_session.send_message(user_input)
+                        await self._monitor_right_to_prompt()
+                    except Exception as send_error:
+                        self.cli_event_subscriber.set_processing_user_message(False)
+                        self.logger.error(f"Error processing message from file: {send_error}")
+                    print_pt('')
+        except FileNotFoundError:
+            self.logger.error(f"Error: Input file not found at {file_path}")
+        except Exception as e:
+            self.logger.error(f"Error processing input file: {e}")
     
     async def initialize_and_run(self) -> None:
         """Initialize the environment and run the interactive chat session."""

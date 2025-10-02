@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import argparse
 from hatchling.core.logging.logging_config import configure_logging
 from hatchling.core.logging.logging_manager import logging_manager
 from hatchling.config.settings_registry import SettingsRegistry
@@ -25,6 +26,10 @@ async def main_async():
     Raises:
         Exception: Any unhandled exceptions that occur during execution.
     """
+    parser = argparse.ArgumentParser(description="Hatchling CLI Chat Interface")
+    parser.add_argument("-f", "--input-file", type=str, help="Path to a file containing commands to execute.")
+    args = parser.parse_args()
+
     settings_registry = None
     try:
     
@@ -35,7 +40,7 @@ async def main_async():
                                  default_language_code=settings_registry.settings.ui.language_code)
 
         # Create and run CLI chat interface
-        cli_chat = CLIChat(settings_registry)
+        cli_chat = CLIChat(settings_registry, input_file_path=args.input_file)
         
         await cli_chat.initialize_and_run()
         
