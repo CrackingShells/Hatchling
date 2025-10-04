@@ -32,7 +32,7 @@ class OpenAISettings(BaseModel):
     api_base: str = Field(
         default_factory=lambda: os.environ.get("OPENAI_API_URL", "https://api.openai.com/v1"),
         description="The base URL for OpenAI API requests.",
-        json_schema_extra={"access_level": SettingAccessLevel.READ_ONLY},
+        json_schema_extra={"access_level": SettingAccessLevel.PROTECTED},
     )
 
     timeout: int = Field(
