@@ -1,3 +1,15 @@
+## [0.5.0](https://github.com/CrackingShells/Hatchling/compare/v0.4.5...v0.5.0) (2025-10-04)
+
+
+### Features
+
+* lower restriction level on `api_base` ([c1aa2d9](https://github.com/CrackingShells/Hatchling/commit/c1aa2d9fe92267d0896e625c78c7cee7fd7c8921))
+
+
+### Bug Fixes
+
+* openai.api_base reconfigurable ([b58ac51](https://github.com/CrackingShells/Hatchling/commit/b58ac519397c933640c0256add9a4d61367f915c))
+
 ## [0.4.5](https://github.com/CrackingShells/Hatchling/compare/v0.4.4...v0.4.5) (2025-08-30)
 
 
