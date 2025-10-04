@@ -224,7 +224,7 @@ class ModelManagerAPI:
         # model listing requires different permissions and pricing
         
         try:
-            client = AsyncOpenAI(api_key=settings.openai.api_key)
+            client = AsyncOpenAI(api_key=settings.openai.api_key, base_url=settings.openai.api_base)
 
             models_response = await client.models.list()
             models = []
