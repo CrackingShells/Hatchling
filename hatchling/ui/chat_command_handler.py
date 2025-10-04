@@ -21,6 +21,7 @@ from hatchling.ui.hatch_commands import HatchCommands
 from hatchling.ui.mcp_commands import MCPCommands
 from hatchling.ui.model_commands import ModelCommands
 from hatchling.ui.settings_commands import SettingsCommands
+from hatchling.ui.history_commands import HistoryCommands
 
 class ChatCommandHandler:
     """Handles processing of command inputs in the chat interface."""    
@@ -40,6 +41,7 @@ class ChatCommandHandler:
         self.settings_commands = SettingsCommands(chat_session, settings_registry, style)
         self.mcp_commands = MCPCommands(chat_session, settings_registry, style)
         self.model_commands = ModelCommands(chat_session, settings_registry, style)
+        self.history_commands = HistoryCommands(chat_session, settings_registry, style)
 
         self.logger = logging_manager.get_session("hatchling.core.chat.command_handler")
 
@@ -54,6 +56,7 @@ class ChatCommandHandler:
         self.commands.update(self.settings_commands.reload_commands())
         self.commands.update(self.mcp_commands.reload_commands())
         self.commands.update(self.model_commands.reload_commands())
+        self.commands.update(self.history_commands.reload_commands())
 
         self.command_completer = FuzzyCompleter(CommandCompleter(self.commands, mcp_manager.hatch_env_manager))
         self.command_lexer = ChatCommandLexer(self.commands)
@@ -79,6 +82,7 @@ class ChatCommandHandler:
         self.settings_commands.print_commands_help()
         self.mcp_commands.print_commands_help()
         self.model_commands.print_commands_help()
+        self.history_commands.print_commands_help()
             
         print("======================\n")
 
