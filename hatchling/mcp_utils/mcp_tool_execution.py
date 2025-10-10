@@ -7,6 +7,7 @@ managing tool calling chains, and processing tool results with event-driven arch
 import logging
 import time
 import asyncio
+import json
 from mcp.types import CallToolResult
 
 from hatchling.mcp_utils.manager import mcp_manager
@@ -88,28 +89,49 @@ class MCPToolExecution:
             self.logger.debug(f"Tool {parsed_tool_call.function_name} executed with responses: {tool_response}")
 
             if tool_response and not tool_response.isError:
+                # Convert CallToolResult to a serializable dictionary
+                serializable_tool_response = tool_response.__dict__.copy()
+                if "content" in serializable_tool_response and isinstance(serializable_tool_response["content"], list):
+                    serializable_tool_response["content"] = [
+                        item.text if hasattr(item, "text") else str(item)
+                        for item in serializable_tool_response["content"]
+                    ]
+
                 result_obj = ToolCallExecutionResult(
                     **parsed_tool_call.to_dict(),
-                    result=tool_response,
+                    result=serializable_tool_response,
                     error=None
                 )
                 self._event_publisher.publish(EventType.MCP_TOOL_CALL_RESULT, result_obj.to_dict())
             else:
+                # Convert CallToolResult to a serializable dictionary for error case as well
+                serializable_tool_response = tool_response.__dict__.copy()
+                if "content" in serializable_tool_response and isinstance(serializable_tool_response["content"], list):
+                    serializable_tool_response["content"] = [
+                        item.text if hasattr(item, "text") else str(item)
+                        for item in serializable_tool_response["content"]
+                    ]
+
                 result_obj = ToolCallExecutionResult(
                     **parsed_tool_call.to_dict(),
-                    result=tool_response,
+                    result=serializable_tool_response,
                     error="Tool execution failed or returned no valid response"
                 )
                 self._event_publisher.publish(EventType.MCP_TOOL_CALL_ERROR, result_obj.to_dict())
 
         except Exception as e:
             self.logger.error(f"Error executing tool: {e}")
+            # For error case, create a serializable representation of the error result
+            error_content = [{"type": "text", "text": f"{e}"}]
+            serializable_error_response = {
+                "meta": None,
+                "content": [item["text"] if isinstance(item, dict) and "text" in item else str(item) for item in error_content],
+                "structuredContent": None,
+                "isError": True,
+            }
             result_obj = ToolCallExecutionResult(
                 **parsed_tool_call.to_dict(),
-                result=CallToolResult(
-                    content=[{"type": "text", "text": f"{e}"}],
-                    isError=True,
-                ),
+                result=serializable_error_response,
                 error=str(e)
             )
             self._event_publisher.publish(EventType.MCP_TOOL_CALL_ERROR, result_obj.to_dict())

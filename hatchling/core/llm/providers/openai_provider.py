@@ -545,5 +545,10 @@ class OpenAIProvider(LLMProvider):
         """
         return {
             "tool_call_id": tool_result.tool_call_id,
-            "content": str(tool_result.result.content[0].text) if tool_result.result.content[0].text else "No result",
+            "content": json.dumps({
+                "tool_name": tool_result.function_name,
+                "content": str(tool_result.result["content"][0]["text"]) if tool_result.result and "content" in tool_result.result and tool_result.result["content"] and tool_result.result["content"][0] and "text" in tool_result.result["content"][0] else "No result",
+                "structuredContent": tool_result.result.get("structuredContent"),
+                "isError": tool_result.result.get("isError", False)
+            })
         }
