@@ -14,6 +14,8 @@
       {
         "preset": "conventionalcommits",
         "releaseRules": [
+          {"breaking": true, "release": "minor"},
+          {"type": "feat", "release": "patch"},
           {"type": "docs", "scope": "README", "release": "patch"},
           {"type": "refactor", "release": "patch"},
           {"type": "style", "release": "patch"},
@@ -58,6 +60,11 @@
         "releasedLabels": false
       }
     ],
-    "@covage/semantic-release-poetry-plugin"
+    [
+      "semantic-release-pypi",
+      {
+        "pypiPublish": false
+      }
+    ]
   ]
 }

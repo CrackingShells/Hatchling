@@ -8,13 +8,13 @@
   "devDependencies": {
     "@commitlint/cli": "^18.6.1",
     "@commitlint/config-conventional": "^18.6.2",
-    "@covage/semantic-release-poetry-plugin": "^0.2.0-development",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.6",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
-    "semantic-release": "^22.0.12"
+    "semantic-release": "^22.0.12",
+    "semantic-release-pypi": "^5.1.3"
   },
   "config": {
     "commitizen": {
