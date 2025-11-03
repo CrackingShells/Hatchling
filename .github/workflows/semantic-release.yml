@@ -52,9 +52,7 @@ jobs:
           node-version: "lts/*"
 
       - name: Install Node dependencies
-        run: |
-          npm ci
-          npm install --save-dev @covage/semantic-release-poetry-plugin@^0.2.0-development
+        run: npm ci
 
       - name: Verify npm audit
         run: npm audit signatures

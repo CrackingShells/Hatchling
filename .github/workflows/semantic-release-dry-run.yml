@@ -1,0 +1,87 @@
+name: Semantic Release Dry Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_scenario:
+        description: 'Test scenario to simulate'
+        required: true
+        type: choice
+        options:
+          - 'current-state'
+          - 'feat-commit'
+          - 'breaking-change'
+          - 'fix-commit'
+          - 'refactor-commit'
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.CRACKINGSHELLS_WORKFLOWS }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Verify npm audit
+        run: npm audit signatures
+
+      - name: Create test commit (if needed)
+        if: github.event.inputs.test_scenario != 'current-state'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          case "${{ github.event.inputs.test_scenario }}" in
+            "feat-commit")
+              echo "# Test feature" >> TEST_FEATURE.md
+              git add TEST_FEATURE.md
+              git commit -m "feat: add test feature for version bump testing"
+              ;;
+            "breaking-change")
+              echo "# Breaking change test" >> TEST_BREAKING.md
+              git add TEST_BREAKING.md
+              git commit -m "feat!: breaking change for version bump testing
+
+BREAKING CHANGE: This is a test breaking change"
+              ;;
+            "fix-commit")
+              echo "# Test fix" >> TEST_FIX.md
+              git add TEST_FIX.md
+              git commit -m "fix: test fix for version bump testing"
+              ;;
+            "refactor-commit")
+              echo "# Test refactor" >> TEST_REFACTOR.md
+              git add TEST_REFACTOR.md
+              git commit -m "refactor: test refactor for version bump testing"
+              ;;
+          esac
+
+      - name: Run Semantic Release (Dry Run)
+        env:
+          GITHUB_TOKEN: ${{ secrets.CRACKINGSHELLS_WORKFLOWS }}
+        run: npx semantic-release --dry-run
+
+      - name: Display results
+        if: always()
+        run: |
+          echo "=== Dry Run Complete ==="
+          echo "Test scenario: ${{ github.event.inputs.test_scenario }}"
+          echo ""
+          echo "Expected version bumps based on configuration:"
+          echo "- Breaking changes (feat!): MINOR version bump (0.x.y -> 0.(x+1).0)"
+          echo "- Features (feat): PATCH version bump (0.x.y -> 0.x.(y+1))"
+          echo "- Fixes (fix): Default behavior (PATCH)"
+          echo "- Refactor: PATCH version bump (0.x.y -> 0.x.(y+1))"
+          echo ""
+          echo "Check the semantic-release output above to verify the version bump."
+
