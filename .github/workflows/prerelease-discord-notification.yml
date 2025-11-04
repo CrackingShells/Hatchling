@@ -1,0 +1,31 @@
+name: Discord Pre-release Notification
+
+on:
+  release:
+    types: [prereleased]
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    if: github.event.release.target_commitish == 'dev'
+    steps:
+      - name: Send Discord Pre-release Notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_HATCHLING_ANNOUNCEMENTS }}
+          nodetail: true
+          # No content field = no mention for pre-releases
+          title: "🧪 Hatchling Pre-release Available for Testing"
+          description: |
+            **Version `${{ github.event.release.tag_name }}`** is now available for testing!
+            
+            ⚠️ **This is a pre-release** - expect potential bugs and breaking changes
+            🔬 Perfect for testing new features and providing feedback
+            📋 Click [here](${{ github.event.release.html_url }}) to view what's new and download
+            
+            Help us make *Hatchling* better by testing and reporting [issues](https://github.com/CrackingShells/Hatchling/issues)! 🐛➡️✨
+          color: 0xff9500  # Orange color for pre-release
+          username: "Cracking Shells Pre-release Bot"
+          image: "https://github.com/CrackingShells/.github/blob/main/resources/images/hatchling_core_dark_bg.png"
+          avatar_url: "https://github.com/CrackingShells/.github/blob/main/resources/images/cs_core_dark_bg.png"
+
