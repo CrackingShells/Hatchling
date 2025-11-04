@@ -18,6 +18,10 @@ from hatchling.ui.abstract_commands import AbstractCommands
 class BaseChatCommands(AbstractCommands):
     """Handles processing of command inputs in the chat interface."""
 
+    def __init__(self, chat_session, settings_registry, style, cli_chat):
+        super().__init__(chat_session, settings_registry, style)
+        self.cli_chat = cli_chat
+
     def _register_commands(self) -> None:
         """Register all available chat commands with their handlers."""
         # New standardized command registration format with i18n support
@@ -79,6 +83,13 @@ class BaseChatCommands(AbstractCommands):
                 'description': translate("commands.base.version_description"),
                 'is_async': False,
                 'args': {}
+            },
+            ':load': {
+                'handler': self._cmd_load,
+                'description': translate("commands.load.description"),
+                'is_async': True,
+                'args_description': translate("commands.load.args_description"),
+                'example': ":load my_script.txt"
             }
         }
 
@@ -197,3 +208,12 @@ class BaseChatCommands(AbstractCommands):
         """
         self.logger.info(f"Hatchling version: {__version__}")
         return True
+
+    async def _cmd_load(self, filename: str) -> bool:
+        """Handles the :load command to execute commands from a file."""
+        if not filename:
+            self.logger.error("Error: Please provide a filename for the :load command.")
+            return True # Continue interactive session
+        
+        await self.cli_chat._process_commands_from_file(filename)
+        return True # Continue interactive session

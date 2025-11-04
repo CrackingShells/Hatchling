@@ -259,6 +259,11 @@ disable_tools_description = "Disable MCP tools"
 version_name = "version"
 version_description = "Display the current version of Hatchling"
 
+# Load command
+[commands.load]
+description = "Execute commands from a file"
+args_description = "Path to the file containing commands"
+
 # Hatch commands
 [commands.hatch]
 
