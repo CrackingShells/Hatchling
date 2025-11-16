@@ -39,6 +39,27 @@ This directory contains analysis and implementation planning for fixing the crit
   - 8 tasks including unnecessary ones
   - Estimated effort: 14-22 hours (1.75-2.75 days)
 
+### Test Planning
+
+- **[02-test_plan_v1.md](./02-test_plan_v1.md)** ⭐ **CURRENT** - Comprehensive test plan (refined)
+  - 18 automated tests + 7 manual scenarios
+  - Test-to-code ratio: 3:1 (within target 2:1 to 3:1)
+  - Organized by functional groups (Configuration, Discovery, Validation, Display)
+  - Focused on behavioral functionality, not meta-constraints
+  - Includes integration tests and manual test checklist
+  - Edge cases and regression prevention covered
+  - **Status**: Ready for Review
+  - **Summary**: [02-test_plan_summary_v1.md](./02-test_plan_summary_v1.md)
+
+- **[02-test_plan_v0.md](./02-test_plan_v0.md)** 📦 **ARCHIVED** - Initial test plan (superseded)
+  - 24 automated tests (over-tested meta-constraints)
+  - Included error message content tests (implementation details)
+  - Refined in v1 to focus on behavioral tests
+
+### Supporting Documents
+
+- **[WORK_SESSION_SUMMARY.md](./WORK_SESSION_SUMMARY.md)** - Session overview and key decisions
+
 ---
 
 ## Quick Summary
@@ -104,12 +125,17 @@ The original Phase 0 (from strategic_implementation_roadmap_v2.md) had 3 tasks:
 ## Implementation Status
 
 - ⏳ **Phase 0**: Not Started
-  - Task 1: Simplify Configuration - Not Started
-  - Task 2: Remove Hard-coded Defaults - Not Started
-  - Task 3: Discovery Command - Not Started
-  - Task 4: Model List Display - Not Started
-  - Task 5: Error Messages - Not Started
-  - Task 6: Documentation - Not Started
+  - ✅ Phase 1: Analysis - Complete
+  - ✅ Phase 2: Test Definition - Complete (Ready for Review)
+  - ⏳ Phase 3: Implementation - Not Started
+    - Task 1: Clean Up Default Configuration - Not Started
+    - Task 2: Implement Model Discovery Command - Not Started
+    - Task 3: Enhance Model Add Command - Not Started
+    - Task 4: Improve Model List Display - Not Started
+    - Task 5: Better Error Messages - Not Started
+    - Task 6: Update Documentation - Not Started
+  - ⏳ Phase 4: Test Execution - Not Started
+  - ⏳ Phase 5: Documentation Update - Not Started
 
 ---
 
