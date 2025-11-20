@@ -33,7 +33,7 @@ class ToolCallExecutionResult:
     tool_call_id: str
     function_name: str
     arguments: Dict[str, Any]
-    result: Any
+    result: Dict[str, Any]
     error: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:

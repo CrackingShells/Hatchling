@@ -10,6 +10,7 @@ import logging
 from typing import Dict, List, Optional
 
 from hatchling.core.logging.logging_manager import logging_manager
+from hatchling.config.settings import AppSettings
 from .message_history import MessageHistory
 
 logger = logging_manager.get_session("MessageHistoryRegistry")
@@ -64,11 +65,12 @@ class MessageHistoryRegistry:
 
 
     @classmethod
-    def get_or_create_history(cls, uid: str) -> MessageHistory:
+    def get_or_create_history(cls, uid: str, settings: AppSettings = None) -> MessageHistory:
         """Get a MessageHistory instance for the given UID, or create one if it doesn't exist.
         
         Args:
             uid (str): The UID to get or create a history for.
+            settings (AppSettings, optional): Application settings to pass to MessageHistory constructor.
         
         Returns:
             MessageHistory: The existing or newly created MessageHistory instance.
@@ -76,7 +78,7 @@ class MessageHistoryRegistry:
         history = cls._histories.get(uid)
         if history is not None:
             return history
-        history = MessageHistory()
+        history = MessageHistory(settings=settings)
         cls._histories[uid] = history
         logger.debug(f"Created and registered new history for UID '{uid}'")
         return history    

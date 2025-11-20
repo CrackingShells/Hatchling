@@ -29,7 +29,7 @@ class ChatSession:
         self.tool_execution = MCPToolExecution()
         # Initialize message components
         self.session_id = str(uuid.uuid4())
-        self.history = MessageHistoryRegistry.get_or_create_history(self.session_id)
+        self.history = MessageHistoryRegistry.get_or_create_history(self.session_id, settings=self.settings)
 
         # Create tool chaining subscriber for automatic tool calling chains
         self._tool_chaining_subscriber = ToolChainingSubscriber(self.settings, self.tool_execution, self.session_id)
@@ -106,5 +106,6 @@ class ChatSession:
         # In the future, we must allow users to specify tools directly in the query.
         payload = provider.add_tools_to_payload(payload)
         
+        self.logger.debug(f"Sending payload to LLM: {payload}")
         # Stream the response using provider abstraction
         await provider.stream_chat_response(payload)

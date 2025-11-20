@@ -5,12 +5,14 @@ including user messages, assistant responses, and tool interactions.
 """
 
 from typing import List, Dict, Any, Optional
+import json
 from hatchling.core.logging.logging_manager import logging_manager
 from hatchling.core.llm.providers.registry import ProviderRegistry
 from hatchling.core.llm.event_system import EventSubscriber, Event, EventType
 from hatchling.config.llm_settings import ELLMProvider
 
 from hatchling.core.llm.data_structures import ToolCallParsedResult, ToolCallExecutionResult
+from hatchling.config.settings import AppSettings
 
 class MessageHistory(EventSubscriber):
     """Event-driven message history manager with canonical and provider-specific histories.
@@ -19,8 +21,9 @@ class MessageHistory(EventSubscriber):
     provider-specific histories based on the current LLM provider.
     """
     
-    def __init__(self):
+    def __init__(self, settings: AppSettings = None):
         """Initialize an empty message history with dual-history support."""
+        self.settings = settings or AppSettings.get_instance()
         # Canonical history storing all events in normalized format
         self.canonical_history: List[Dict[str, Any]] = []
         
@@ -196,6 +199,12 @@ class MessageHistory(EventSubscriber):
         """Regenerate provider-specific history from canonical history."""
         self.provider_history = []
         
+        # Determine the provider to use for formatting
+        provider_to_use = self._current_provider
+        if provider_to_use is None:
+            provider_to_use = self.settings.llm.provider_enum
+            self.logger.debug(f"_current_provider is None, using default provider from settings: {provider_to_use}")
+
         for entry in self.canonical_history:
             entry_type = entry["type"]
             
@@ -207,13 +216,13 @@ class MessageHistory(EventSubscriber):
                 tool_call = entry["data"]
                 provider_entry = {
                     "role": "assistant",
-                    "tool_calls": [ProviderRegistry.get_provider(self._current_provider).hatchling_to_llm_tool_call(tool_call)]
+                    "tool_calls": [ProviderRegistry.get_provider(provider_to_use).hatchling_to_llm_tool_call(tool_call)]
                 }
             elif entry_type == "tool_result":
                 tool_result = entry["data"]
                 provider_entry = {
                     "role": "tool",
-                    **ProviderRegistry.get_provider(self._current_provider).hatchling_to_provider_tool_result(tool_result)
+                    **ProviderRegistry.get_provider(provider_to_use).hatchling_to_provider_tool_result(tool_result)
                 }
             else:
                 continue  # Skip unknown entry types
@@ -315,6 +324,45 @@ class MessageHistory(EventSubscriber):
         
         self.logger.info("MessageHistory - Cleared!")
     
+    def delete_last_n_messages(self, n: int) -> None:
+        """Delete the last 'n' messages from the history.
+        
+        Args:
+            n (int): The number of messages to delete from the end of the history.
+        """
+        if n <= 0:
+            self.logger.warning(f"Attempted to delete {n} messages. 'n' must be a positive integer.")
+            return
+
+        if len(self.canonical_history) < n:
+            self.logger.warning(f"Attempted to delete {n} messages, but only {len(self.canonical_history)} exist. Clearing history.")
+            self.canonical_history = []
+        else:
+            self.canonical_history = self.canonical_history[:-n]
+        
+        self._regenerate_provider_history()
+        self.logger.info(f"Deleted last {n} messages. Current history length: {len(self.canonical_history)}")
+
+    def delete_last_message(self) -> None:
+        """Delete the last message from the history."""
+        self.delete_last_n_messages(1)
+        self.logger.info("Deleted last message.")
+
+    def keep_last_n_messages(self, n: int) -> None:
+        """Keep only the last 'n' messages in the history, deleting older ones.
+        
+        Args:
+            n (int): The number of most recent messages to keep.
+        """
+        if n <= 0:
+            self.logger.warning(f"Attempted to keep {n} messages. 'n' must be a positive integer. Clearing history.")
+            self.canonical_history = []
+        elif len(self.canonical_history) > n:
+            self.canonical_history = self.canonical_history[-n:]
+        
+        self._regenerate_provider_history()
+        self.logger.info(f"Kept last {n} messages. Current history length: {len(self.canonical_history)}")
+
     def __len__(self) -> int:
         """Get the number of entries in canonical history.
         
@@ -322,3 +370,94 @@ class MessageHistory(EventSubscriber):
             int: The number of entries in the canonical history.
         """
         return len(self.canonical_history)
+
+    def get_formatted_history(self, n: Optional[int] = None) -> str:
+        """Get a formatted string representation of the canonical history.
+        
+        Args:
+            n (Optional[int]): If provided, return only the last 'n' messages.
+            
+        Returns:
+            str: A multi-line string with formatted history entries.
+        """
+        history_to_format = self.canonical_history
+        if n is not None and n > 0:
+            history_to_format = self.canonical_history[-n:]
+
+        formatted_output = []
+        for i, entry in enumerate(history_to_format):
+            entry_type = entry["type"]
+            data = entry["data"]
+
+            # Use the enumerate index for display
+            display_index = i + 1
+
+            if entry_type == "user":
+                formatted_output.append(f"[{display_index}] User: {data.get("content", "")}")
+            elif entry_type == "assistant":
+                formatted_output.append(f"[{display_index}] Assistant: {data.get("content", "")}")
+            elif entry_type == "tool_call":
+                tool_call = data
+                formatted_output.append(f"[{display_index}] Tool Call: {tool_call.function_name}({tool_call.arguments})")
+            elif entry_type == "tool_result":
+                tool_result = data
+                formatted_output.append(f"[{display_index}] Tool Result ({tool_result.function_name}): {tool_result.result or tool_result.error}")
+            else:
+                formatted_output.append(f"[{display_index}] Unknown Entry Type: {entry_type} - {data}")
+        
+        if not formatted_output:
+            return "(History is empty)"
+        
+        return "\n".join(formatted_output)
+
+    def save_history_to_file(self, file_path: str) -> None:
+        """Save the canonical history to a specified file in JSON format.
+        
+        Args:
+            file_path (str): The absolute path to the file where the history will be saved.
+        """
+        try:
+            serializable_history = []
+            for entry in self.canonical_history:
+                serializable_entry = entry.copy()
+                if "data" in serializable_entry and hasattr(serializable_entry["data"], "to_dict"):
+                    serializable_entry["data"] = serializable_entry["data"].to_dict()
+                serializable_history.append(serializable_entry)
+
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(serializable_history, f, ensure_ascii=False, indent=4)
+            self.logger.info(f"History saved to {file_path}")
+        except Exception as e:
+            self.logger.error(f"Failed to save history to {file_path}: {e}")
+
+    def load_history_from_file(self, file_path: str) -> None:
+        """Load canonical history from a specified JSON file.
+        
+        Args:
+            file_path (str): The absolute path to the file from which the history will be loaded.
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                loaded_history = json.load(f)
+            
+            deserialized_history = []
+            for entry in loaded_history:
+                if entry["type"] == "tool_call":
+                    entry["data"] = ToolCallParsedResult(**entry["data"])
+                elif entry["type"] == "tool_result":
+                    entry["data"] = ToolCallExecutionResult(**entry["data"])
+                deserialized_history.append(entry)
+
+            self.canonical_history = deserialized_history
+            # After loading, ensure the current provider is set for history regeneration
+            # This prevents issues where _current_provider might be None after loading
+            # and _regenerate_provider_history tries to use it.
+            self._current_provider = self.settings.llm.provider_enum
+            self._regenerate_provider_history()
+            self.logger.info(f"History loaded from {file_path}")
+        except FileNotFoundError:
+            self.logger.error(f"History file not found: {file_path}")
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Failed to decode JSON from {file_path}: {e}")
+        except Exception as e:
+            self.logger.error(f"Failed to load history from {file_path}: {e}")

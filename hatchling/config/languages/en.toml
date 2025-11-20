@@ -242,6 +242,19 @@ quit_name = "quit"
 quit_description = "End the chat session (alias for exit)"
 clear_name = "clear"
 clear_description = "Clear the chat history"
+show_logs_description = "Display session logs"
+set_log_level_description = "Change log level"
+version_description = "Display the current version of Hatchling"
+
+# History commands
+[commands.history]
+delete_description = "Delete the last N messages from the chat history"
+keep_description = "Keep only the last N messages in the chat history"
+show_description = "Display the formatted chat history"
+export_description = "Export the formatted chat history to a file"
+save_description = "Save the current chat history to a file"
+load_description = "Load chat history from a file"
+clear_description = "Clear the entire chat history"
 
 # Additional base commands
 show_logs_name = "show_logs"
@@ -393,6 +406,11 @@ force_removal_description = "Force removal without confirmation"
 cmd_description = "Command to run in the shell (optional)"
 tag_description = "Git tag/branch reference for wrapper installation (e.g., 'dev', 'v0.1.0')"
 all_settings_description = "Include read-only settings in the export"
+history_delete_count_description = "Number of messages to delete from the end of the history (default: 1)"
+history_keep_count_description = "Number of most recent messages to keep"
+history_show_count_description = "Number of latest messages to display (optional)"
+history_export_file_path_description = "Path to the file to export the history to"
+history_file_path_description = "Path to the history file"
 
 # Error messages
 [errors]
