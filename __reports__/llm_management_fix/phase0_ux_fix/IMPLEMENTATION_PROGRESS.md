@@ -40,18 +40,19 @@
 - [x] Merge to fix branch
 - **Commit**: d929966 - "feat(llm): implement model discovery command"
 
-### ⏳ Phase 3: Task 3 - Enhance Model Add Command (2-3h)
-- [ ] Create task branch: `task/3-enhance-add`
-- [ ] Update `_cmd_model_add` with validation
-- [ ] Check model exists in provider's available list
-- [ ] Reject models not found (no auto-download)
-- [ ] Show available models when model not found
-- [ ] Prevent duplicates
-- [ ] Add `--provider` flag support
-- [ ] Write tests using `unittest.TestCase` assertions
-- [ ] Test add workflow manually
-- [ ] Commit changes with conventional commit message
-- [ ] Merge to fix branch
+### ✅ Phase 3: Task 3 - Enhance Model Add Command (COMPLETED)
+- [x] Create task branch: `task/3-enhance-add`
+- [x] Update `_cmd_model_add` with validation
+- [x] Check model exists in provider's available list
+- [x] Reject models not found (no auto-download)
+- [x] Show available models when model not found
+- [x] Prevent duplicates
+- [x] Add `--provider` flag support
+- [ ] Write tests using `unittest.TestCase` assertions (deferred to Phase 6)
+- [ ] Test add workflow manually (deferred to Phase 6)
+- [x] Commit changes with conventional commit message
+- [x] Merge to fix branch
+- **Commit**: 493ea26 - "feat(llm): enhance model add command with validation"
 
 ### ⏳ Phase 4: Task 4 - Improve Model List Display (2-3h)
 - [ ] Create task branch: `task/4-list-display`
@@ -97,8 +98,8 @@
 
 ## Current Status
 
-**Current Phase**: Phase 3 - Task 3 - Enhance Model Add Command
-**Next Action**: Create task branch and add validation to model add command
+**Current Phase**: Phase 4 - Task 4 - Improve Model List Display
+**Next Action**: Create task branch and enhance model list display
 
 ---
 

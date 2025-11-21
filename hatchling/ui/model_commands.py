@@ -197,7 +197,11 @@ class ModelCommands(AbstractCommands):
     # =============================================================================
     
     async def _cmd_model_list(self, args: str) -> bool:
-        """List all available models, optionally filtered by provider or search query.
+        """List curated models with availability status indicators.
+
+        Shows models grouped by provider with status indicators:
+        - ✓ AVAILABLE: Model is accessible and ready to use
+        - ✗ UNAVAILABLE: Model is configured but not accessible at provider
 
         Args:
             args (str): Optional provider name or search query to filter models.
@@ -206,11 +210,70 @@ class ModelCommands(AbstractCommands):
             bool: True to continue the chat session.
         """
 
-        #TODO: Implement filtering by provider name or search query
+        # Check if curated list is empty
+        if not self.settings.llm.models:
+            print("📋 Your curated model list is empty.")
+            print("\nTo add models:")
+            print("  1. Discover all available models:")
+            print("     llm:model:discover")
+            print("  2. Or add a specific model:")
+            print("     llm:model:add <model-name>")
+            print("\nFor Ollama models, pull them first:")
+            print("  ollama pull <model-name>")
+            return True
 
-        print("Available LLM Models:")
-        for model_info in self.settings.llm.models:
-            print(f"  - {model_info.provider.value} {model_info.name}")
+        # Group models by provider
+        from collections import defaultdict
+        from hatchling.config.llm_settings import ModelStatus
+
+        models_by_provider = defaultdict(list)
+        for model in self.settings.llm.models:
+            models_by_provider[model.provider].append(model)
+
+        # Display models grouped by provider
+        print("📋 Curated LLM Models:\n")
+
+        for provider, models in sorted(models_by_provider.items(), key=lambda x: x[0].value):
+            print(f"  {provider.value.upper()}:")
+
+            # Check provider health
+            is_healthy = await ModelManagerAPI.check_provider_health(provider, self.settings)
+
+            if not is_healthy:
+                print(f"    ⚠️  Provider not accessible")
+                for model in sorted(models, key=lambda m: m.name):
+                    current_marker = " (current)" if model.name == self.settings.llm.model else ""
+                    print(f"      ✗ {model.name}{current_marker}")
+                print()
+                continue
+
+            # Fetch available models from provider to check status
+            try:
+                available_models = await ModelManagerAPI.list_available_models(provider, self.settings)
+                available_names = {m.name.lower() for m in available_models}
+            except Exception as e:
+                self.logger.error(f"Error fetching models from {provider.value}: {e}")
+                available_names = set()
+
+            # Display each model with status
+            for model in sorted(models, key=lambda m: m.name):
+                # Determine status
+                is_available = model.name.lower() in available_names
+                status_icon = "✓" if is_available else "✗"
+
+                # Mark current model
+                current_marker = " (current)" if model.name == self.settings.llm.model else ""
+
+                print(f"      {status_icon} {model.name}{current_marker}")
+
+            print()
+
+        # Show legend
+        print("Legend:")
+        print("  ✓ AVAILABLE   - Model is accessible and ready to use")
+        print("  ✗ UNAVAILABLE - Model is configured but not accessible")
+        print("\n💡 Use 'llm:model:use <model-name>' to set active model")
+        print("💡 Use 'llm:model:remove <model-name>' to remove from list")
 
         return True
 
