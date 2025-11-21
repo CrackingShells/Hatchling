@@ -47,6 +47,20 @@ class ModelCommands(AbstractCommands):
                 'is_async': True,
                 'args': {}
             },
+            'llm:model:discover': {
+                'handler': self._cmd_model_discover,
+                'description': translate('commands.llm.model_discover_description'),
+                'is_async': True,
+                'args': {
+                    'provider-name': {
+                        'positional': False,
+                        'completer_type': 'suggestions',
+                        'values': self.settings.llm.provider_names,
+                        'description': translate('commands.llm.provider_name_arg_description'),
+                        'required': False
+                    }
+                }
+            },
             'llm:model:add': {
                 'handler': self._cmd_model_add,
                 'description': translate('commands.llm.model_add_description'),
@@ -184,14 +198,14 @@ class ModelCommands(AbstractCommands):
     
     async def _cmd_model_list(self, args: str) -> bool:
         """List all available models, optionally filtered by provider or search query.
-        
+
         Args:
             args (str): Optional provider name or search query to filter models.
-            
+
         Returns:
             bool: True to continue the chat session.
         """
-        
+
         #TODO: Implement filtering by provider name or search query
 
         print("Available LLM Models:")
@@ -199,7 +213,95 @@ class ModelCommands(AbstractCommands):
             print(f"  - {model_info.provider.value} {model_info.name}")
 
         return True
-    
+
+    async def _cmd_model_discover(self, args: str) -> bool:
+        """Discover and add all available models from provider to curated list.
+
+        This command fetches all models currently available at the provider and adds
+        them to the user's curated model list. Models must already be available:
+        - For Ollama: Models must be pulled first with 'ollama pull <model-name>'
+        - For OpenAI: Models must be accessible with your API key
+
+        Args:
+            args (str): Optional provider name argument (defaults to current provider).
+
+        Returns:
+            bool: True to continue the chat session.
+        """
+        try:
+            args_def = self.commands['llm:model:discover']['args']
+            parsed_args = self._parse_args(args, args_def)
+            provider_name = parsed_args.get('provider-name', self.settings.llm.provider_enum.value)
+            provider = LLMSettings.to_provider_enum(provider_name)
+
+            # Check provider health first
+            is_healthy = await ModelManagerAPI.check_provider_health(provider, self.settings)
+            if not is_healthy:
+                print(f"❌ Provider '{provider.value}' is not accessible.")
+                print(f"\nTroubleshooting:")
+                if provider.value == "ollama":
+                    print(f"  1. Check if Ollama is running: 'ollama list'")
+                    print(f"  2. Verify connection settings:")
+                    print(f"     - IP: {self.settings.ollama.ip}")
+                    print(f"     - Port: {self.settings.ollama.port}")
+                    print(f"  3. Update settings if needed:")
+                    print(f"     settings:set ollama:ip <ip>")
+                    print(f"     settings:set ollama:port <port>")
+                elif provider.value == "openai":
+                    print(f"  1. Verify OPENAI_API_KEY is set")
+                    print(f"  2. Check internet connection")
+                    print(f"  3. Verify API base URL: {self.settings.openai.api_base}")
+                return True
+
+            # Fetch available models from provider
+            print(f"🔍 Discovering models from {provider.value}...")
+            available_models = await ModelManagerAPI.list_available_models(provider, self.settings)
+
+            if not available_models:
+                print(f"⚠️  No models found at {provider.value}.")
+                if provider.value == "ollama":
+                    print(f"\nTo add models:")
+                    print(f"  1. Pull a model: ollama pull <model-name>")
+                    print(f"  2. Run discovery again: llm:model:discover")
+                return True
+
+            # Add models to curated list (skip duplicates)
+            added_count = 0
+            skipped_count = 0
+            existing_model_keys = {(m.provider, m.name) for m in self.settings.llm.models}
+
+            for model in available_models:
+                model_key = (model.provider, model.name)
+                if model_key not in existing_model_keys:
+                    self.settings.llm.models.append(model)
+                    added_count += 1
+                else:
+                    skipped_count += 1
+
+            # Report results
+            print(f"\n✅ Discovery complete!")
+            print(f"  Added: {added_count} model(s)")
+            if skipped_count > 0:
+                print(f"  Skipped: {skipped_count} model(s) (already in list)")
+            print(f"  Total models in curated list: {len(self.settings.llm.models)}")
+
+            # Update command completions
+            if added_count > 0:
+                self.commands['llm:model:use']['args']['model-name']['values'] = [
+                    model.name for model in self.settings.llm.models
+                ]
+                self.commands['llm:model:remove']['args']['model-name']['values'] = [
+                    model.name for model in self.settings.llm.models
+                ]
+                print(f"\n💡 Use 'llm:model:list' to see all models")
+                print(f"💡 Use 'llm:model:use <model-name>' to set active model")
+
+        except Exception as e:
+            self.logger.error(f"Error in model discover command: {e}")
+            print(f"❌ Error during discovery: {e}")
+
+        return True
+
     async def _cmd_model_add(self, args: str) -> bool:
         """Pull/download a model (Ollama only).
         

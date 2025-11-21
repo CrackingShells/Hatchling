@@ -15,16 +15,17 @@
 - [x] Understand current implementation
 - [x] Create task tracking document
 
-### ⏳ Phase 1: Task 1 - Clean Up Default Configuration (1-2h)
-- [ ] Create task branch: `task/1-clean-defaults`
-- [ ] Remove hard-coded phantom models from `llm_settings.py`
-- [ ] Update default `models` to empty list
-- [ ] Update default `model` to None
-- [ ] Preserve environment variable support
-- [ ] Update field descriptions in `languages/en.toml`
-- [ ] Run existing tests to ensure no regressions
-- [ ] Commit changes with conventional commit message
-- [ ] Merge to fix branch
+### ✅ Phase 1: Task 1 - Clean Up Default Configuration (COMPLETED)
+- [x] Create task branch: `task/1-clean-defaults`
+- [x] Remove hard-coded phantom models from `llm_settings.py`
+- [x] Update default `models` to empty list
+- [x] Update default `model` to None
+- [x] Preserve environment variable support
+- [x] Update field descriptions in `languages/en.toml`
+- [x] Run existing tests to ensure no regressions
+- [x] Commit changes with conventional commit message
+- [x] Merge to fix branch
+- **Commit**: a5504ea - "fix(config): remove phantom models and simplify model status"
 
 ### ⏳ Phase 2: Task 2 - Implement Model Discovery Command (4-6h)
 - [ ] Create task branch: `task/2-discovery-command`
@@ -95,8 +96,8 @@
 
 ## Current Status
 
-**Current Phase**: Phase 0 - Analysis & Planning  
-**Next Action**: Begin Task 1 - Clean Up Default Configuration
+**Current Phase**: Phase 2 - Task 2 - Implement Model Discovery Command
+**Next Action**: Create task branch and implement discovery command
 
 ---
 
