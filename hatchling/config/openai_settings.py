@@ -1,6 +1,12 @@
 """Settings for configuring OpenAI LLMs.
 
 Contains configuration options for connecting to and controlling OpenAI LLM generation.
+
+Configuration Precedence:
+    Persistent Settings (user.toml) > Environment Variables > Code Defaults
+
+Environment variables provide deployment flexibility (Docker, CI/CD) while
+persistent settings allow runtime configuration changes without restart.
 """
 
 import os

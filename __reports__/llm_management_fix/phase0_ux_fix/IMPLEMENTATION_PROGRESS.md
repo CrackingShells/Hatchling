@@ -1,0 +1,133 @@
+# LLM Management UX Fix - Implementation Progress
+
+**Branch**: `fix/llm-management`  
+**Started**: 2025-11-21  
+**Status**: In Progress
+
+---
+
+## Task Checklist
+
+### ✅ Phase 0: Analysis & Planning
+- [x] Read all documentation (README, roadmap v3, test plan v2)
+- [x] Read playbook instructions (analytic-behavior, work-ethics, git-workflow)
+- [x] Examine current codebase state
+- [x] Understand current implementation
+- [x] Create task tracking document
+
+### ⏳ Phase 1: Task 1 - Clean Up Default Configuration (1-2h)
+- [ ] Create task branch: `task/1-clean-defaults`
+- [ ] Remove hard-coded phantom models from `llm_settings.py`
+- [ ] Update default `models` to empty list
+- [ ] Update default `model` to None
+- [ ] Preserve environment variable support
+- [ ] Update field descriptions in `languages/en.toml`
+- [ ] Run existing tests to ensure no regressions
+- [ ] Commit changes with conventional commit message
+- [ ] Merge to fix branch
+
+### ⏳ Phase 2: Task 2 - Implement Model Discovery Command (4-6h)
+- [ ] Create task branch: `task/2-discovery-command`
+- [ ] Add `llm:model:discover` command to `model_commands.py`
+- [ ] Implement discovery handler with provider health check
+- [ ] Implement uniqueness checking (skip duplicates)
+- [ ] Add `--provider` flag support
+- [ ] Update command completions after discovery
+- [ ] Write tests using `unittest.TestCase` assertions
+- [ ] Test discovery workflow manually
+- [ ] Commit changes with conventional commit message
+- [ ] Merge to fix branch
+
+### ⏳ Phase 3: Task 3 - Enhance Model Add Command (2-3h)
+- [ ] Create task branch: `task/3-enhance-add`
+- [ ] Update `_cmd_model_add` with validation
+- [ ] Check model exists in provider's available list
+- [ ] Reject models not found (no auto-download)
+- [ ] Show available models when model not found
+- [ ] Prevent duplicates
+- [ ] Add `--provider` flag support
+- [ ] Write tests using `unittest.TestCase` assertions
+- [ ] Test add workflow manually
+- [ ] Commit changes with conventional commit message
+- [ ] Merge to fix branch
+
+### ⏳ Phase 4: Task 4 - Improve Model List Display (2-3h)
+- [ ] Create task branch: `task/4-list-display`
+- [ ] Update `_cmd_model_list` method
+- [ ] Show helpful guidance when list is empty
+- [ ] Group models by provider
+- [ ] Add status indicators: ✓ AVAILABLE, ✗ UNAVAILABLE only
+- [ ] Mark current model clearly
+- [ ] Sort alphabetically within provider
+- [ ] Add legend explaining statuses
+- [ ] Write tests using `unittest.TestCase` assertions
+- [ ] Test list display manually
+- [ ] Commit changes with conventional commit message
+- [ ] Merge to fix branch
+
+### ⏳ Phase 5: Task 5 - Better Error Messages (1-2h)
+- [ ] Create task branch: `task/5-error-messages`
+- [ ] Enhance error messages in `model_commands.py`
+- [ ] Add provider-specific troubleshooting (Ollama vs OpenAI)
+- [ ] Update provider initialization errors in `cli_chat.py`
+- [ ] Show available models when model not found
+- [ ] Include actionable next steps in all errors
+- [ ] Write tests using `unittest.TestCase` assertions
+- [ ] Test error scenarios manually
+- [ ] Commit changes with conventional commit message
+- [ ] Merge to fix branch
+
+### ⏳ Phase 6: Testing & Validation
+- [ ] Run full test suite
+- [ ] Execute manual test checklist from test plan
+- [ ] Verify all success gates met
+- [ ] Check for regressions
+- [ ] Validate UX improvements
+
+### ⏳ Phase 7: Final Review
+- [ ] Review all commits for quality
+- [ ] Ensure conventional commit format
+- [ ] Verify git history is clean and logical
+- [ ] Final manual testing
+- [ ] Ready for merge to main
+
+---
+
+## Current Status
+
+**Current Phase**: Phase 0 - Analysis & Planning  
+**Next Action**: Begin Task 1 - Clean Up Default Configuration
+
+---
+
+## Notes
+
+### Key Findings from Codebase Analysis
+
+1. **Current phantom models** (line 91 in `llm_settings.py`):
+   - Hard-coded: `"[(ollama, llama3.2), (openai, gpt-4.1-nano)]"`
+   - These need to be removed
+
+2. **ModelStatus enum** (line 17-22 in `llm_settings.py`):
+   - Currently has: AVAILABLE, NOT_AVAILABLE, DOWNLOADING, ERROR
+   - Need to simplify to: AVAILABLE, NOT_AVAILABLE only
+
+3. **Current commands** in `model_commands.py`:
+   - `llm:provider:supported` - Lists providers
+   - `llm:provider:status` - Checks provider health
+   - `llm:model:list` - Lists models (needs enhancement)
+   - `llm:model:add` - Adds/pulls model (needs validation)
+   - `llm:model:use` - Sets default model
+   - `llm:model:remove` - Removes model from list
+   - Missing: `llm:model:discover` command
+
+4. **ModelManagerAPI** provides:
+   - `check_provider_health()` - Already exists
+   - `list_available_models()` - Already exists
+   - `is_model_available()` - Already exists
+   - `pull_model()` - Already exists (but needs to be used differently)
+
+---
+
+**Last Updated**: 2025-11-21
+

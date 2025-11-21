@@ -31,8 +31,8 @@ category_description = "Settings for Large Language Model configuration"
 
 [settings.llm.models]
 name = "LLM Models"
-description = "List of available LLM models. Format: [(provider, model_name), ...(provider, model_name)]"
-hint = "Example: [(ollama, llama3.2), (openai, gpt-4.1-nano)]"
+description = "Curated list of LLM models. Use 'llm:model:discover' to populate from available models. Environment variable LLM_MODELS can provide initial models for deployment in format: [(provider, model_name), ...]"
+hint = "Use 'llm:model:discover' to add models, or set LLM_MODELS env var for deployment"
 
 # Ollama settings (new/expanded)
 [settings.ollama.ip]
@@ -153,13 +153,13 @@ hint = "String: auto | none | required"
 # Provider setting
 [settings.llm.provider_enum]
 name = "LLM Provider"
-description = "LLM provider to use ('ollama' or 'openai')."
+description = "LLM provider to use ('ollama' or 'openai'). Can be set via LLM_PROVIDER environment variable for deployment. Persistent settings override environment variables."
 hint = "Choose between 'ollama' or 'openai'"
 
 [settings.llm.model]
 name = "Model"
-description = "LLM model to use for chat interactions"
-hint = "Example: mistral-small3.1"
+description = "LLM model to use for chat interactions. Must be selected from curated models list. Use 'llm:model:discover' or 'llm:model:add' to populate available models."
+hint = "Use 'llm:model:use <model-name>' to set the active model"
 
 # Path Settings
 [settings.paths]
