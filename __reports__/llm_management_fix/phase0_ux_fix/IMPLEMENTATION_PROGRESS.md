@@ -54,19 +54,20 @@
 - [x] Merge to fix branch
 - **Commit**: 493ea26 - "feat(llm): enhance model add command with validation"
 
-### ⏳ Phase 4: Task 4 - Improve Model List Display (2-3h)
-- [ ] Create task branch: `task/4-list-display`
-- [ ] Update `_cmd_model_list` method
-- [ ] Show helpful guidance when list is empty
-- [ ] Group models by provider
-- [ ] Add status indicators: ✓ AVAILABLE, ✗ UNAVAILABLE only
-- [ ] Mark current model clearly
-- [ ] Sort alphabetically within provider
-- [ ] Add legend explaining statuses
-- [ ] Write tests using `unittest.TestCase` assertions
-- [ ] Test list display manually
-- [ ] Commit changes with conventional commit message
-- [ ] Merge to fix branch
+### ✅ Phase 4: Task 4 - Improve Model List Display (COMPLETED)
+- [x] Create task branch: `task/4-list-display`
+- [x] Update `_cmd_model_list` method
+- [x] Show helpful guidance when list is empty
+- [x] Group models by provider
+- [x] Add status indicators: ✓ AVAILABLE, ✗ UNAVAILABLE only
+- [x] Mark current model clearly
+- [x] Sort alphabetically within provider
+- [x] Add legend explaining statuses
+- [ ] Write tests using `unittest.TestCase` assertions (deferred to Phase 6)
+- [ ] Test list display manually (deferred to Phase 6)
+- [x] Commit changes with conventional commit message
+- [x] Merge to fix branch
+- **Commit**: b9003b1 - "feat(llm): improve model list display with status indicators"
 
 ### ⏳ Phase 5: Task 5 - Better Error Messages (1-2h)
 - [ ] Create task branch: `task/5-error-messages`
@@ -98,8 +99,8 @@
 
 ## Current Status
 
-**Current Phase**: Phase 4 - Task 4 - Improve Model List Display
-**Next Action**: Create task branch and enhance model list display
+**Current Phase**: Phase 5 - Task 5 - Better Error Messages
+**Next Action**: Create task branch and enhance error messages
 
 ---
 

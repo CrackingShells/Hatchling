@@ -81,12 +81,37 @@ class CLIChat:
         # Initialize the provider
         try:
             ProviderRegistry.get_provider(self.settings_registry.settings.llm.provider_enum)
-        
+
         except Exception as e:
-            msg = f"Failed to initialize {self.settings_registry.settings.llm.provider_enum} LLM provider: {e}"
-            msg += "\nEnsure the LLM provider name is correct in your settings."
-            msg += "\nYou can list providers compatible with Hatchling using `model:provider:list` command."
-            msg += "\nEnsure you have switched to a supported provider before trying to use the chat interface."
+            provider = self.settings_registry.settings.llm.provider_enum
+            msg = f"❌ Failed to initialize {provider.value} LLM provider: {e}\n"
+            msg += "\nTroubleshooting:\n"
+
+            if provider.value == "ollama":
+                msg += "  1. Check if Ollama is running:\n"
+                msg += "     ollama list\n"
+                msg += "  2. Verify connection settings:\n"
+                msg += f"     Current IP: {self.settings_registry.settings.ollama.ip}\n"
+                msg += f"     Current Port: {self.settings_registry.settings.ollama.port}\n"
+                msg += "  3. Update settings if needed:\n"
+                msg += "     settings:set ollama:ip <ip>\n"
+                msg += "     settings:set ollama:port <port>\n"
+                msg += "  4. Check models are available:\n"
+                msg += "     llm:model:discover\n"
+            elif provider.value == "openai":
+                msg += "  1. Verify OPENAI_API_KEY is set:\n"
+                msg += "     settings:set openai:api_key <your-key>\n"
+                msg += "  2. Check internet connection\n"
+                msg += f"  3. Verify API base URL: {self.settings_registry.settings.openai.api_base}\n"
+                msg += "  4. Check models are available:\n"
+                msg += "     llm:model:discover --provider openai\n"
+            else:
+                msg += "  1. Ensure the LLM provider name is correct in your settings\n"
+                msg += "  2. List supported providers:\n"
+                msg += "     llm:provider:supported\n"
+                msg += "  3. Switch to a supported provider:\n"
+                msg += "     settings:set llm:provider_enum <provider-name>\n"
+
             self.logger.warning(msg)
         
         finally:
