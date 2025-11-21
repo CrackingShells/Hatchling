@@ -27,17 +27,18 @@
 - [x] Merge to fix branch
 - **Commit**: a5504ea - "fix(config): remove phantom models and simplify model status"
 
-### ⏳ Phase 2: Task 2 - Implement Model Discovery Command (4-6h)
-- [ ] Create task branch: `task/2-discovery-command`
-- [ ] Add `llm:model:discover` command to `model_commands.py`
-- [ ] Implement discovery handler with provider health check
-- [ ] Implement uniqueness checking (skip duplicates)
-- [ ] Add `--provider` flag support
-- [ ] Update command completions after discovery
-- [ ] Write tests using `unittest.TestCase` assertions
-- [ ] Test discovery workflow manually
-- [ ] Commit changes with conventional commit message
-- [ ] Merge to fix branch
+### ✅ Phase 2: Task 2 - Implement Model Discovery Command (COMPLETED)
+- [x] Create task branch: `task/2-discovery-command`
+- [x] Add `llm:model:discover` command to `model_commands.py`
+- [x] Implement discovery handler with provider health check
+- [x] Implement uniqueness checking (skip duplicates)
+- [x] Add `--provider` flag support
+- [x] Update command completions after discovery
+- [ ] Write tests using `unittest.TestCase` assertions (deferred to Phase 6)
+- [ ] Test discovery workflow manually (deferred to Phase 6)
+- [x] Commit changes with conventional commit message
+- [x] Merge to fix branch
+- **Commit**: d929966 - "feat(llm): implement model discovery command"
 
 ### ⏳ Phase 3: Task 3 - Enhance Model Add Command (2-3h)
 - [ ] Create task branch: `task/3-enhance-add`
@@ -96,8 +97,8 @@
 
 ## Current Status
 
-**Current Phase**: Phase 2 - Task 2 - Implement Model Discovery Command
-**Next Action**: Create task branch and implement discovery command
+**Current Phase**: Phase 3 - Task 3 - Enhance Model Add Command
+**Next Action**: Create task branch and add validation to model add command
 
 ---
 

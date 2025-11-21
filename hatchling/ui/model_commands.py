@@ -303,11 +303,16 @@ class ModelCommands(AbstractCommands):
         return True
 
     async def _cmd_model_add(self, args: str) -> bool:
-        """Pull/download a model (Ollama only).
-        
+        """Add a specific model to the curated list with validation.
+
+        This command validates that the model exists at the provider before adding
+        it to the curated list. Models must already be available:
+        - For Ollama: Model must be pulled first with 'ollama pull <model-name>'
+        - For OpenAI: Model must be accessible with your API key
+
         Args:
-            args (str): Model name argument.
-            
+            args (str): Model name argument and optional provider.
+
         Returns:
             bool: True to continue the chat session.
         """
@@ -317,21 +322,80 @@ class ModelCommands(AbstractCommands):
 
             model_name = parsed_args.get('model-name', '')
             provider_name = parsed_args.get('provider-name', self.settings.llm.provider_enum.value)
-            
+            provider = LLMSettings.to_provider_enum(provider_name)
+
             if not model_name:
-                self.logger.error("Positional argument 'model-name' is required for pulling a model.")
+                self.logger.error("Positional argument 'model-name' is required to add a model.")
                 return True
 
-            success = await ModelManagerAPI.pull_model(model_name, LLMSettings.to_provider_enum(provider_name))
+            # Check provider health
+            is_healthy = await ModelManagerAPI.check_provider_health(provider, self.settings)
+            if not is_healthy:
+                print(f"❌ Provider '{provider.value}' is not accessible.")
+                print(f"\nTroubleshooting:")
+                if provider.value == "ollama":
+                    print(f"  1. Check if Ollama is running: 'ollama list'")
+                    print(f"  2. Verify connection settings:")
+                    print(f"     - IP: {self.settings.ollama.ip}")
+                    print(f"     - Port: {self.settings.ollama.port}")
+                elif provider.value == "openai":
+                    print(f"  1. Verify OPENAI_API_KEY is set")
+                    print(f"  2. Check internet connection")
+                return True
 
-            if success:
-                # We update the commands args value suggestion for the autocompletion
-                self.commands['llm:model:use']['args']['model-name']['values'] = [model.name for model in self.settings.llm.models]
-                self.commands['llm:model:remove']['args']['model-name']['values'] = [model.name for model in self.settings.llm.models]
+            # Fetch available models from provider
+            available_models = await ModelManagerAPI.list_available_models(provider, self.settings)
+
+            # Check if model exists in available list
+            model_found = None
+            for model in available_models:
+                if model.name.lower() == model_name.lower():
+                    model_found = model
+                    break
+
+            if not model_found:
+                print(f"❌ Model '{model_name}' not found at {provider.value}.")
+                print(f"\nAvailable models at {provider.value}:")
+                if available_models:
+                    # Show first 10 models
+                    for i, model in enumerate(available_models[:10]):
+                        print(f"  - {model.name}")
+                    if len(available_models) > 10:
+                        print(f"  ... and {len(available_models) - 10} more")
+                    print(f"\n💡 Use 'llm:model:discover' to add all available models")
+                else:
+                    if provider.value == "ollama":
+                        print(f"  No models found. Pull a model first:")
+                        print(f"  ollama pull <model-name>")
+                return True
+
+            # Check for duplicates
+            existing_model_keys = {(m.provider, m.name) for m in self.settings.llm.models}
+            model_key = (model_found.provider, model_found.name)
+
+            if model_key in existing_model_keys:
+                print(f"⚠️  Model '{model_name}' is already in your curated list.")
+                print(f"💡 Use 'llm:model:list' to see all models")
+                return True
+
+            # Add model to curated list
+            self.settings.llm.models.append(model_found)
+            print(f"✅ Added '{model_name}' to your curated list.")
+
+            # Update command completions
+            self.commands['llm:model:use']['args']['model-name']['values'] = [
+                model.name for model in self.settings.llm.models
+            ]
+            self.commands['llm:model:remove']['args']['model-name']['values'] = [
+                model.name for model in self.settings.llm.models
+            ]
+
+            print(f"💡 Use 'llm:model:use {model_name}' to set it as active model")
 
         except Exception as e:
-            self.logger.error(f"Error in model pull command: {e}")
-            
+            self.logger.error(f"Error in model add command: {e}")
+            print(f"❌ Error adding model: {e}")
+
         return True
 
     def _cmd_model_use(self, args: str) -> bool:
