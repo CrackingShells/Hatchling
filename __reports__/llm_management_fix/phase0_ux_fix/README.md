@@ -27,27 +27,37 @@ This directory contains analysis and implementation planning for fixing the crit
 
 ### Implementation Planning
 
-- **[01-implementation_roadmap_v2.md](./01-implementation_roadmap_v2.md)** ⭐ **CURRENT** - Implementation roadmap v2
-  - Based on v2 assessment
-  - 6 focused tasks with detailed specifications
+- **[01-implementation_roadmap_v3.md](./01-implementation_roadmap_v3.md)** ⭐ **CURRENT** - Implementation roadmap v3 (Critical fixes)
+  - Addresses test style, status indicators, discovery behavior, and docs workflow
+  - 5 focused tasks (Task 6 documentation deferred for stakeholder interaction)
   - Estimated effort: 10-15 hours (1.25-2 days)
-  - Complete code examples and success gates
+  - Uses unittest.TestCase assertions (Wobble style)
+  - Removes DOWNLOADING and UNKNOWN statuses
+  - Clarifies that discover/add only work with already-available models
   - **Status**: Ready for Implementation
+
+- **[01-implementation_roadmap_v2.md](./01-implementation_roadmap_v2.md)** 📦 **ARCHIVED** - Implementation roadmap v2 (superseded)
+  - Based on v2 assessment
+  - Contains issues fixed in v3 (test style, status indicators)
+  - 6 tasks with some task 6 autonomous docs
 
 - **[01-implementation_roadmap_v0.md](./01-implementation_roadmap_v0.md)** 📦 **ARCHIVED** - Initial roadmap (superseded)
   - Based on v0 assessment with errors
   - 8 tasks including unnecessary ones
-  - Estimated effort: 14-22 hours (1.75-2.75 days)
 
 ### Test Planning
 
-- **[02-test_plan_v1.md](./02-test_plan_v1.md)** ⭐ **CURRENT** - Comprehensive test plan (refined)
-  - 18 automated tests + 7 manual scenarios
-  - Test-to-code ratio: 3:1 (within target 2:1 to 3:1)
-  - Organized by functional groups (Configuration, Discovery, Validation, Display)
-  - Focused on behavioral functionality, not meta-constraints
-  - Includes integration tests and manual test checklist
-  - Edge cases and regression prevention covered
+- **[02-test_plan_v2.md](./02-test_plan_v2.md)** ⭐ **CURRENT** - Test plan v2 (Corrected assertions and statuses)
+  - 15 automated tests + 6 manual scenarios
+  - All tests use `unittest.TestCase` with `self.assert*()` methods
+  - Removes DOWNLOADING and UNKNOWN status tests
+  - Clarifies that tests validate behavior, not implementation details
+  - Focus on Ollama/OpenAI actual workflows
+  - **Status**: Ready for Test Implementation
+
+- **[02-test_plan_v1.md](./02-test_plan_v1.md)** 📦 **ARCHIVED** - Test plan v1 (superseded)
+  - Contains issues fixed in v2 (test assertions, status indicators)
+  - 18 automated tests with some meta-constraint tests
   - **Status**: Ready for Review
   - **Summary**: [02-test_plan_summary_v1.md](./02-test_plan_summary_v1.md)
 
@@ -133,9 +143,8 @@ The original Phase 0 (from strategic_implementation_roadmap_v2.md) had 3 tasks:
     - Task 3: Enhance Model Add Command - Not Started
     - Task 4: Improve Model List Display - Not Started
     - Task 5: Better Error Messages - Not Started
-    - Task 6: Update Documentation - Not Started
   - ⏳ Phase 4: Test Execution - Not Started
-  - ⏳ Phase 5: Documentation Update - Not Started
+  - ⏳ Phase 5: Stakeholder Documentation Review - Not Started (Task 6 deferred)
 
 ---
 
