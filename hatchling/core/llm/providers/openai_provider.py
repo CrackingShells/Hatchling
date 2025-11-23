@@ -229,12 +229,13 @@ class OpenAIProvider(LLMProvider):
             raise RuntimeError("OpenAI client not initialized. Call initialize() first.")
         
         try:
-            # Given that OpenAI's API key can be set in the settings at any time by the user,
+            # Given that OpenAI's API baseurl and api_key can be set in the settings at any time by the user,
             # we always re-assign before making a request
             # TODO: Although less severe, this is similar to Ollama's case where we
             # constantly have to re-assign data. An necessary optimization will be
             # made once the command pattern to set the settings will allow callbacks
             # using the publish-subscribe pattern.
+            self._client.base_url = self._settings.openai.api_base
             self._client.api_key = self._settings.openai.api_key
 
             # Ensure streaming is enabled for this request
