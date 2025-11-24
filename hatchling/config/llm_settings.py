@@ -18,8 +18,6 @@ class ModelStatus(Enum):
     """Status of a model."""
     AVAILABLE = "available"
     NOT_AVAILABLE = "not_available"
-    DOWNLOADING = "downloading"
-    ERROR = "error"
 
 
 @dataclass
@@ -59,9 +57,9 @@ class LLMSettings(BaseModel):
         json_schema_extra={"access_level": SettingAccessLevel.NORMAL},
     )
 
-    model: str = Field(
-        default_factory=lambda: os.environ.get("LLM_MODEL", "llama3.2"),
-        description="Default LLM to use for the selected provider.",
+    model: Optional[str] = Field(
+        default=None,
+        description="Default LLM to use for the selected provider. Must be explicitly selected from discovered models.",
         json_schema_extra={"access_level": SettingAccessLevel.NORMAL},
     )
 
@@ -88,10 +86,10 @@ class LLMSettings(BaseModel):
         default_factory=lambda: [
             ModelInfo(name=model[1], provider=model[0], status=ModelStatus.AVAILABLE)
             for model in LLMSettings.extract_provider_model_list(
-                os.environ.get("LLM_MODELS", "") if os.environ.get("LLM_MODELS") else "[(ollama, llama3.2), (openai, gpt-4.1-nano)]"
+                os.environ.get("LLM_MODELS", "")
             )
-        ],
-        description="List of LLMs the user can choose from.",
+        ] if os.environ.get("LLM_MODELS") else [],
+        description="Curated list of LLM models. Use 'llm:model:discover' to populate from available models. Environment variable LLM_MODELS can provide initial models for deployment.",
         json_schema_extra={"access_level": SettingAccessLevel.NORMAL},
     )
 
